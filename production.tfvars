@@ -11,4 +11,9 @@ dns_records = {
     content = "davidzenisu.github.io"
     type    = "CNAME"
   }
+  "grades" = {
+    name    = "grades"
+    content = "zealous-forest-0c694b103.3.azurestaticapps.net"
+    type    = "CNAME"
+  }
 }
