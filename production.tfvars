@@ -16,4 +16,9 @@ dns_records = {
     content = "zealous-forest-0c694b103.3.azurestaticapps.net"
     type    = "CNAME"
   }
+  "bluesky" = {
+    name    = "_atproto.david"
+    content = "did=did:plc:33zzvayo7qynpcba2varefbq"
+    type    = "TXT"
+  }
 }
