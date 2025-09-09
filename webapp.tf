@@ -18,6 +18,15 @@ module "staticsite" {
 
   }
 
-  custom_domains   = each.value.custom_domains
+  custom_domains = each.value.custom_domain == null ? {} : {
+    default = {
+      domain_name     = each.value.custom_domain
+      validation_type = "cname-delegation"
+
+      create_cname_records = false
+      create_txt_records   = false
+    }
+  }
+
   enable_telemetry = false
 }
