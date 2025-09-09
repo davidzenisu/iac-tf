@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "static_web_app" {
   for_each = var.static_web_apps
-  
+
   name     = each.value.resource_group_name
   location = each.value.location
 }

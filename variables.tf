@@ -25,3 +25,13 @@ A map of DNS records to create. The map key is deliberately arbitrary to avoid i
 - `proxied` - (Optional) Whether the entry is served using Cloudflare's proxy. May cause compatibility issues if set to true. Defaults to false.
 DESCRIPTION
 }
+
+variable "static_web_apps" {
+  type = map(object({
+    name                = string
+    resource_group_name = string
+    location            = string
+    custom_domains      = string
+  }))
+  default = {}
+}
