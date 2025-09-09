@@ -20,7 +20,7 @@ module "static_web_app" {
 
   custom_domains = each.value.custom_domain == null ? {} : {
     default = {
-      domain_name     = each.value.custom_domain
+      domain_name     = "${each.value.custom_domain}.${var.zone_name}"
       validation_type = "cname-delegation"
 
       create_cname_records = false
@@ -35,7 +35,7 @@ resource "cloudflare_record" "static_web_app" {
   for_each = var.static_web_apps
 
   zone_id = data.cloudflare_zone.this["default"].id
-  name    = "grades"
+  name    = each.value.custom_domain
   content = module.static_web_app[each.key].resource_uri
   type    = "CNAME"
   proxied = false

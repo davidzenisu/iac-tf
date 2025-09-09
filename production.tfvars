@@ -28,6 +28,6 @@ static_web_apps = {
     name                = "stapp-zenisu-events"
     resource_group_name = "rg-zenisu-events"
     location            = "westeurope"
-    custom_domain       = "events.zeni-su.com"
+    custom_domain       = "events"
   }
 }
