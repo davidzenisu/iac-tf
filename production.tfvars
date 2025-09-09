@@ -22,3 +22,12 @@ dns_records = {
     type    = "TXT"
   }
 }
+
+static_web_apps = {
+  "events" = {
+    name                = "stapp-zenisu-events"
+    resource_group_name = "rg-zenisu-events"
+    location            = "westeurope"
+    custom_domains      = "events.zeni-su.com"
+  }
+}
