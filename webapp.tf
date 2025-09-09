@@ -5,7 +5,7 @@ resource "azurerm_resource_group" "static_web_app" {
   location = each.value.location
 }
 
-module "staticsite" {
+module "static_web_app" {
   for_each = var.static_web_apps
 
   source  = "Azure/avm-res-web-staticsite/azurerm"
@@ -30,3 +30,14 @@ module "staticsite" {
 
   enable_telemetry = false
 }
+
+resource "cloudflare_record" "static_web_app" {
+  for_each = var.static_web_apps
+
+  zone_id = data.cloudflare_zone.this["default"].id
+  name    = "grades"
+  content = module.static_web_app[each.key].resource_uri
+  type    = "CNAME"
+  proxied = false
+}
+
