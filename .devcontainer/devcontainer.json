@@ -14,7 +14,14 @@
 			"settings": {
 				"files.autoSave": "afterDelay",
 				"editor.formatOnSave": true
-			}
+			},
+			"extensions": [
+				"hashicorp.terraform",
+				"hashicorp.hcl",
+				"ms-azuretools.vscode-azureterraform",
+				"azapi-vscode.azapi",
+				"golang.Go"
+			]
 		}
 	}
 }
