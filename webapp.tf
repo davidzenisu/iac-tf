@@ -31,6 +31,23 @@ resource "cloudflare_record" "static_web_app" {
   proxied = false
 }
 
+resource "time_sleep" "static_web_app_custom_domain_wait" {
+  count = length(
+    [for v in var.static_web_apps : v if v.custom_domain != null]
+  ) != 0 ? 1 : 0
+
+  create_duration  = "300s"
+  destroy_duration = "0s"
+
+  triggers = {
+    static_web_apps = module.static_web_app[*].id
+  }
+
+  depends_on = [
+    cloudflare_record.static_web_app,
+  ]
+}
+
 # can't be created via module because it's evaluated immediately!
 resource "azurerm_static_web_app_custom_domain" "static_web_app" {
   for_each = {
@@ -41,5 +58,8 @@ resource "azurerm_static_web_app_custom_domain" "static_web_app" {
   domain_name       = "${each.value.custom_domain}.${var.zone_name}"
   validation_type   = "cname-delegation"
 
-  depends_on = [cloudflare_record.static_web_app]
+  depends_on = [
+    cloudflare_record.static_web_app,
+    time_sleep.static_web_app_custom_domain_wait,
+  ]
 }
