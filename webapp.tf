@@ -39,10 +39,6 @@ resource "time_sleep" "static_web_app_custom_domain_wait" {
   create_duration  = "300s"
   destroy_duration = "0s"
 
-  triggers = {
-    static_web_apps = module.static_web_app[*].id
-  }
-
   depends_on = [
     cloudflare_record.static_web_app,
   ]
