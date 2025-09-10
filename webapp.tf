@@ -18,16 +18,6 @@ module "static_web_app" {
 
   }
 
-  custom_domains = each.value.custom_domain == null ? {} : {
-    default = {
-      domain_name     = "${each.value.custom_domain}.${var.zone_name}"
-      validation_type = "cname-delegation"
-
-      create_cname_records = false
-      create_txt_records   = false
-    }
-  }
-
   enable_telemetry = false
 }
 
@@ -41,3 +31,15 @@ resource "cloudflare_record" "static_web_app" {
   proxied = false
 }
 
+# can't be created via module because it's evaluated immediately!
+resource "azurerm_static_web_app_custom_domain" "static_web_app" {
+  for_each = {
+    for k, v in var.static_web_apps : k => v if v.custom_domain != null
+  }
+
+  static_web_app_id = module.static_web_app[each.key].resource_id
+  domain_name       = "${each.value.custom_domain}.${var.zone_name}"
+  validation_type   = "cname-delegation"
+
+  depends_on = [cloudflare_record.static_web_app]
+}
