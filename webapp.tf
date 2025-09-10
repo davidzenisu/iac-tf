@@ -34,7 +34,7 @@ resource "cloudflare_record" "static_web_app" {
 # can't be created via module because it's evaluated immediately!
 resource "azurerm_static_web_app_custom_domain" "static_web_app" {
   for_each = {
-    for k, v in var.static_web_apps : k => v if v.custom_domain
+    for k, v in var.static_web_apps : k => v if v.custom_domain == null
   }
 
   static_web_app_id = module.static_web_app[each.key].resource_id
