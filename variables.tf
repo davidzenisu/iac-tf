@@ -31,6 +31,7 @@ variable "static_web_apps" {
     name                = string
     resource_group_name = string
     location            = string
+    source_repo         = string
     custom_domain       = optional(string)
   }))
   default = {}
