@@ -51,9 +51,9 @@ module "static_web_app" {
 
   role_assignments = {
     "gh_identity" = {
-      principal_id    = azurerm_user_assigned_identity.static_web_app[each.key].principal_id
-      role_definition = "Contributor" #no custom role exists
-      description     = "GitHub Actions identity for Static Web App"
+      principal_id               = azurerm_user_assigned_identity.static_web_app[each.key].principal_id
+      role_definition_id_or_name = "Contributor" #no custom role exists
+      description                = "GitHub Actions identity for Static Web App"
     }
   }
 
