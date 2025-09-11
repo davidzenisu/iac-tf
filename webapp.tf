@@ -5,6 +5,37 @@ resource "azurerm_resource_group" "static_web_app" {
   location = each.value.location
 }
 
+resource "azurerm_user_assigned_identity" "static_web_app" {
+  for_each = var.static_web_apps
+
+  location            = azurerm_resource_group.static_web_app[each.key].location
+  name                = "id-${each.value.name}"
+  resource_group_name = azurerm_resource_group.static_web_app[each.key].name
+}
+
+resource "azurerm_federated_identity_credential" "static_web_app_main_branch" {
+  for_each = var.static_web_apps
+
+  name                = "gh-branch-main"
+  resource_group_name = azurerm_resource_group.static_web_app[each.key].name
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = "https://token.actions.githubusercontent.com"
+  parent_id           = azurerm_user_assigned_identity.static_web_app[each.key].id
+  subject             = "repo:${each.value.source_repo}:ref:refs/heads/main"
+}
+
+resource "azurerm_federated_identity_credential" "static_web_app_pr" {
+  for_each = var.static_web_apps
+
+  name                = "gh-pullrequest"
+  resource_group_name = azurerm_resource_group.static_web_app[each.key].name
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = "https://token.actions.githubusercontent.com"
+  parent_id           = azurerm_user_assigned_identity.static_web_app[each.key].id
+  subject             = "repo:${each.value.source_repo}:pull_request"
+}
+
+# static web app
 module "static_web_app" {
   for_each = var.static_web_apps
 
@@ -17,6 +48,15 @@ module "static_web_app" {
   app_settings = {
 
   }
+
+  role_assignments = {
+    "gh_identity" = {
+      principal_id               = azurerm_user_assigned_identity.static_web_app[each.key].principal_id
+      role_definition_id_or_name = "Contributor" #no custom role exists
+      description                = "GitHub Actions identity for Static Web App"
+    }
+  }
+
 
   enable_telemetry = false
 }

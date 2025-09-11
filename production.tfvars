@@ -28,6 +28,7 @@ static_web_apps = {
     name                = "stapp-zenisu-events"
     resource_group_name = "rg-zenisu-events"
     location            = "westeurope"
+    source_repo         = "davidzenisu/page-form-collections"
     custom_domain       = "events"
   }
 }
