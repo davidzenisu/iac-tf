@@ -31,4 +31,11 @@ static_web_apps = {
     source_repo         = "davidzenisu/page-form-collections"
     custom_domain       = "events"
   }
+  "radio-guesser" = {
+    name                = "stapp-zenisu-radio-guesser"
+    resource_group_name = "rg-zenisu-radio-guesser"
+    location            = "westeurope"
+    source_repo         = "davidzenisu/page-form-collections"
+    custom_domain       = "radio"
+  }
 }
