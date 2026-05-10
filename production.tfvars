@@ -35,7 +35,7 @@ static_web_apps = {
     name                = "stapp-zenisu-radio-guesser"
     resource_group_name = "rg-zenisu-radio-guesser"
     location            = "westeurope"
-    source_repo         = "davidzenisu/page-form-collections"
+    source_repo         = "davidzenisu/game-radio-guesser"
     custom_domain       = "radio"
   }
   "gods-pet" = {
