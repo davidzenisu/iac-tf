@@ -38,7 +38,7 @@ static_web_apps = {
     source_repo         = "davidzenisu/page-form-collections"
     custom_domain       = "radio"
   }
- "gods-pet" = {
+  "gods-pet" = {
     name                = "stapp-zenisu-gods-pet"
     resource_group_name = "rg-zenisu-gods-pet"
     location            = "westeurope"
