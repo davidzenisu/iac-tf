@@ -20,7 +20,6 @@
 				"hashicorp.terraform",
 				"hashicorp.hcl",
 				"ms-azuretools.vscode-azureterraform",
-				"azapi-vscode.azapi",
 				"golang.Go"
 			]
 		}
