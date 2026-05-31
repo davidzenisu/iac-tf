@@ -29,13 +29,13 @@ require_gcloud_login
 read -p "Enter your GCP project display name. If the project doesn't exist, it will be created: " GC_PROJECT_DISPLAY_NAME
 read -p "Enter your GCP service account name (example: github-actions-sa): " GCP_SERVICE_ACCOUNT_NAME
 
-WI_POOL_NAME="github"
+WI_POOL_NAME="gh-oidc"
 
 
-PROJECT_ID=$(gcloud projects list --filter="name:'$PROJECT_DISPLAY_NAME'" --format="value(projectId)")
+PROJECT_ID=$(gcloud projects list --filter="name:'$GC_PROJECT_DISPLAY_NAME'" --format="value(projectId)")
 
 if [[ -z "$PROJECT_ID" ]]; then
-  echo "No project found with the display name: $PROJECT_DISPLAY_NAME. Creating..."
+  echo "No project found with the display name: $GC_PROJECT_DISPLAY_NAME. Creating..."
   # create project
   random_suffix=$(tr -dc a-z0-9 </dev/urandom | head -c 6; echo)
   PROJECT_ID="${GC_PROJECT_DISPLAY_NAME}-${random_suffix}"
@@ -89,6 +89,11 @@ WI_OIDC_PROVIDER=$(gcloud iam workload-identity-pools providers list \
   --filter="name:'$OIDC_NAME'" \
   --format="value(name)")
 
+# Add repo id assertion 
+# https://github.com/google-github-actions/auth/blob/main/docs/SECURITY_CONSIDERATIONS.md
+echo "Get current GitHub repository ID..."
+GITHUB_REPO_ID=$(gh api repos/${GITHUB_REPOSITORY} --jq '.id') > /dev/null
+
 if [[ -z "$WI_OIDC_PROVIDER" ]]; then
   echo "No OIDC Provider Found with the following name: $WI_POOL_NAME. Creating..."
   gcloud iam workload-identity-pools providers create-oidc "$OIDC_NAME" \
@@ -97,7 +102,7 @@ if [[ -z "$WI_OIDC_PROVIDER" ]]; then
     --workload-identity-pool="$WI_POOL_NAME" \
     --display-name="GitHub OIDC provider" \
     --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
-    --attribute-condition="assertion.repository_owner == '${GITHUB_USER}'" \
+    --attribute-condition="assertion.repository_owner == '${GITHUB_USER}' && assertion.repository_id == '${GITHUB_REPO_ID}'" \
     --issuer-uri="https://token.actions.githubusercontent.com"
     WI_OIDC_PROVIDER=$(gcloud iam workload-identity-pools providers describe "$OIDC_NAME" \
       --project="${PROJECT_ID}" \
