@@ -16,23 +16,21 @@ resource "azurerm_user_assigned_identity" "static_web_app" {
 resource "azurerm_federated_identity_credential" "static_web_app_main_branch" {
   for_each = var.static_web_apps
 
-  name                = "gh-branch-main"
-  resource_group_name = azurerm_resource_group.static_web_app[each.key].name
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = "https://token.actions.githubusercontent.com"
-  parent_id           = azurerm_user_assigned_identity.static_web_app[each.key].id
-  subject             = "repo:${each.value.source_repo}:ref:refs/heads/main"
+  name                      = "gh-branch-main"
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = "https://token.actions.githubusercontent.com"
+  user_assigned_identity_id = azurerm_user_assigned_identity.static_web_app[each.key].id
+  subject                   = "repo:${each.value.source_repo}:ref:refs/heads/main"
 }
 
 resource "azurerm_federated_identity_credential" "static_web_app_pr" {
   for_each = var.static_web_apps
 
-  name                = "gh-pullrequest"
-  resource_group_name = azurerm_resource_group.static_web_app[each.key].name
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = "https://token.actions.githubusercontent.com"
-  parent_id           = azurerm_user_assigned_identity.static_web_app[each.key].id
-  subject             = "repo:${each.value.source_repo}:pull_request"
+  name                      = "gh-pullrequest"
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = "https://token.actions.githubusercontent.com"
+  user_assigned_identity_id = azurerm_user_assigned_identity.static_web_app[each.key].id
+  subject                   = "repo:${each.value.source_repo}:pull_request"
 }
 
 # static web app
