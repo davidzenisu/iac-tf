@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+GITHUB_TOKEN_CACHE="${GITHUB_TOKEN:-}"
+export GITHUB_TOKEN=""
+
+cleanup() {
+  export GITHUB_TOKEN="$GITHUB_TOKEN_CACHE"
+}
+trap cleanup EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
