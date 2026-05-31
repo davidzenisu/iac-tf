@@ -13,19 +13,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") [azure] [cloudflare] [all]
+Usage: $(basename "$0") [azure] [cloudflare] [gcp] [all]
 
 Options:
   azure        Run only Azure setup
   cloudflare   Run only Cloudflare setup
-  all          Run Azure and Cloudflare setup in order
+  gcp          Run only GCP setup
+  all          Run Azure, Cloudflare, and GCP setup in order
   help         Show this message
 
 Examples:
   ./init-repo.sh azure
   ./init-repo.sh cloudflare
+  ./init-repo.sh gcp
   ./init-repo.sh all
-  ./init-repo.sh azure cloudflare
+  ./init-repo.sh azure cloudflare gcp
 EOF
 }
 
@@ -36,6 +38,7 @@ fi
 
 run_azure=false
 run_cloudflare=false
+run_gcp=false
 
 for arg in "$@"; do
   case "$arg" in
@@ -45,9 +48,13 @@ for arg in "$@"; do
     cloudflare|--cloudflare)
       run_cloudflare=true
       ;;
+    gcp|--gcp)
+      run_gcp=true
+      ;;
     all|--all)
       run_azure=true
       run_cloudflare=true
+      run_gcp=true
       ;;
     help|--help|-h)
       usage
@@ -61,7 +68,7 @@ for arg in "$@"; do
   esac
  done
 
-if [ "$run_azure" != true ] && [ "$run_cloudflare" != true ]; then
+if [ "$run_azure" != true ] && [ "$run_cloudflare" != true ] && [ "$run_gcp" != true ]; then
   usage
   exit 1
 fi
@@ -72,4 +79,8 @@ fi
 
 if [ "$run_cloudflare" = true ]; then
   bash "$SCRIPT_DIR/init-cloudflare.sh"
+fi
+
+if [ "$run_gcp" = true ]; then
+  bash "$SCRIPT_DIR/init-gcp.sh"
 fi
