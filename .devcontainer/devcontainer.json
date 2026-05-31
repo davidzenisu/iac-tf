@@ -7,7 +7,8 @@
 			"tflint": "latest",
 			"terragrunt": "latest"
 		},
-		"ghcr.io/devcontainers/features/azure-cli:1": {}
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -19,7 +20,6 @@
 				"hashicorp.terraform",
 				"hashicorp.hcl",
 				"ms-azuretools.vscode-azureterraform",
-				"azapi-vscode.azapi",
 				"golang.Go"
 			]
 		}

@@ -43,6 +43,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: 'Authenticate to GCP'
+      uses: 'google-github-actions/auth@v3'
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_ID }}
+
     # Install the latest version of the Terraform CLI
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -139,6 +146,13 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: 'Authenticate to GCP'
+      uses: 'google-github-actions/auth@v3'
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_ID }}
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
