@@ -87,6 +87,23 @@ az role assignment create \
   --assignee-object-id "$(echo "$az_managed_identity" | jq -r '.principalId')"
 echo -e "${green}✓${nc} Set storage account permissions for managed identity"
 
+subscription_id=$(az account show --query id -o tsv)
+
+echo "Setting subscription-level permissions..."
+az role assignment create \
+  --role "Contributor" \
+  --scope "/subscriptions/$subscription_id" \
+  --assignee-principal-type ServicePrincipal \
+  --assignee-object-id "$(echo "$az_managed_identity" | jq -r '.principalId')"
+echo -e "${green}✓${nc} Set Contributor role at subscription scope"
+
+az role assignment create \
+  --role "Role Based Access Control Administrator" \
+  --scope "/subscriptions/$subscription_id" \
+  --assignee-principal-type ServicePrincipal \
+  --assignee-object-id "$(echo "$az_managed_identity" | jq -r '.principalId')"
+echo -e "${green}✓${nc} Set Role Based Access Control Administrator role at subscription scope"
+
 echo "Setting Azure federated credentials..."
 az identity federated-credential create \
   -g "$AZURE_BACKEND_RG_INPUT" \
