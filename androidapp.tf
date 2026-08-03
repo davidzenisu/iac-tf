@@ -76,6 +76,6 @@ resource "googleplay_app_iam" "github_actions" {
   user_id = google_service_account.github_actions[each.key].email
   app_id  = each.value.android_app_id
   permissions = [
-    "CAN_VIEW_NON_FINANCIAL_DATA"
+    "CAN_VIEW_NON_FINANCIAL_DATA", "CAN_VIEW_APP_QUALITY"
   ]
 }
