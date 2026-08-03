@@ -73,7 +73,7 @@ resource "google_service_account_iam_member" "github_actions_wif" {
 resource "googleplay_user" "github_actions" {
   for_each = var.android_apps
 
-  user_id = google_service_account.github_actions[each.key].email
+  email = google_service_account.github_actions[each.key].email
 
   global_permissions = [
     "CAN_VIEW_FINANCIAL_DATA_GLOBAL"
