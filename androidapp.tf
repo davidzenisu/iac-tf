@@ -31,11 +31,8 @@ resource "google_iam_workload_identity_pool_provider" "github" {
   description                        = "OIDC provider for GitHub Actions"
 
   attribute_mapping = {
-    "google.subject"             = "assertion.sub"
-    "attribute.repository"       = "assertion.repository"
-    "attribute.repository_owner" = "assertion.repository_owner"
-    "attribute.repository_id"    = "assertion.repository_id"
-    "attribute.actor"            = "assertion.actor"
+    "google.subject"  = "assertion.sub"
+    "attribute.actor" = "assertion.actor"
   }
 
   oidc {
@@ -43,16 +40,16 @@ resource "google_iam_workload_identity_pool_provider" "github" {
   }
 
   attribute_condition = length(var.android_apps) > 0 ? join([
-    for repo in values(var.android_apps) : "attribute.repository_owner == '${var.github_owner}' && attribute.repository_id == '${repo.repo_id}'"
-  ], " || ") : "attribute.repository_owner == '${var.github_owner}'"
+    for repo in values(var.android_apps) : "assertion.sub == '${repo.subject}'"
+  ], " || ") : "assertion.sub != ''"
 }
 
 resource "google_service_account" "github_actions" {
   for_each = var.android_apps
 
   project      = data.google_project.project.project_id
-  account_id   = substr(replace("github-${each.value.repo_id}", "/", "-"), 0, 30)
-  display_name = "GitHub Actions Workload Identity Federation for repo ${each.value.repo_id}"
+  account_id   = substr(replace("github-${each.key}", "/", "-"), 0, 30)
+  display_name = "GitHub Actions Workload Identity Federation for ${each.key}"
 }
 
 resource "google_service_account_iam_member" "github_actions_wif" {
@@ -60,5 +57,5 @@ resource "google_service_account_iam_member" "github_actions_wif" {
 
   service_account_id = google_service_account.github_actions[each.key].name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${each.value.repo_id}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.google.subject/${each.value.subject}"
 }

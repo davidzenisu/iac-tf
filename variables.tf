@@ -38,15 +38,9 @@ variable "static_web_apps" {
 }
 
 variable "android_apps" {
-  description = "A map of Android apps with the GitHub repository ID that may impersonate a dedicated service account."
+  description = "A map of Android apps with the immutable GitHub OIDC subject token that may impersonate a dedicated service account."
   type = map(object({
-    repo_id = string
+    subject = string
   }))
   default = {}
-}
-
-variable "github_owner" {
-  description = "The GitHub organization or user that owns the repositories allowed to impersonate the service account."
-  type        = string
-  default     = ""
 }
