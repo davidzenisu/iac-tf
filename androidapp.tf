@@ -69,3 +69,9 @@ resource "google_service_account_iam_member" "github_actions_wif" {
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.google.subject/${each.value.subject}"
 }
+
+resource "googleplay_user" "github_actions" {
+  for_each = var.android_apps
+
+  email = google_service_account.github_actions[each.key].email
+}
