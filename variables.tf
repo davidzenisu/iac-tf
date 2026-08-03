@@ -36,3 +36,11 @@ variable "static_web_apps" {
   }))
   default = {}
 }
+
+variable "android_apps" {
+  description = "A map of Android apps with the immutable GitHub OIDC subject token that may impersonate a dedicated service account."
+  type = map(object({
+    subject = string
+  }))
+  default = {}
+}
