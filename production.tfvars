@@ -52,5 +52,6 @@ play_store_developer_id = "6400912963140305270"
 android_apps = {
   "game-gods-pet" = {
     subject = "repo:davidzenisu@32648667/game-gods-pet@1014907206"
+    app_id  = "com.zenisu.godspet"
   }
 }

@@ -70,8 +70,12 @@ resource "google_service_account_iam_member" "github_actions_wif" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.google.subject/${each.value.subject}"
 }
 
-resource "googleplay_user" "github_actions" {
+resource "googleplay_app_iam" "github_actions" {
   for_each = var.android_apps
 
-  email = google_service_account.github_actions[each.key].email
+  user_id = google_service_account.github_actions[each.key].email
+  app_id  = each.value.app_id
+  permissions = [
+    "CAN_VIEW_NON_FINANCIAL_DATA"
+  ]
 }
