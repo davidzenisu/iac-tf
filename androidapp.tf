@@ -45,8 +45,8 @@ resource "google_iam_workload_identity_pool_provider" "github" {
   }
 
   attribute_condition = length(var.android_apps) > 0 ? join(
-    tolist([for repo in values(var.android_apps) : "assertion.sub == '${repo.subject}'"]),
-    " || "
+    " || ",
+    tolist([for repo in values(var.android_apps) : "assertion.sub == '${repo.subject}'"])
   ) : "assertion.sub != ''"
 }
 
