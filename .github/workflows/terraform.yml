@@ -50,7 +50,7 @@ jobs:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_ID }}
         # Required for google play api
-        access_token_scopes: https://www.xxxgoogleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/cloud-platform
+        access_token_scopes: https://www.googleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/cloud-platform
         token_format: access_token
 
     # Install the latest version of the Terraform CLI
