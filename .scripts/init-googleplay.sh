@@ -183,107 +183,6 @@ create_user() {
   exit 1
 }
 
-upsert_app_grant() {
-  local body_file
-  local status
-  local payload
-  local encoded_email
-  local encoded_package_name
-  local user_resource
-  local grant_resource
-  local grant_url
-  local create_url
-
-  encoded_email="$(urlencode "$SERVICE_ACCOUNT_EMAIL")"
-  encoded_package_name="$(urlencode "$PACKAGE_NAME")"
-
-  user_resource="developers/${DEVELOPER_ID}/users/${SERVICE_ACCOUNT_EMAIL}"
-  grant_resource="${user_resource}/grants/${PACKAGE_NAME}"
-
-  grant_url="${API_ROOT}/developers/${DEVELOPER_ID}/users/${encoded_email}/grants/${encoded_package_name}"
-  create_url="${API_ROOT}/developers/${DEVELOPER_ID}/users/${encoded_email}/grants"
-
-  payload="$(
-    jq -n \
-      --arg name "$grant_resource" \
-      --arg package_name "$PACKAGE_NAME" \
-      --argjson permissions "$APP_PERMISSIONS_JSON" \
-      '{
-        name: $name,
-        packageName: $package_name,
-        appLevelPermissions: $permissions
-      }'
-  )"
-
-  body_file="$(response_body_file)"
-
-  status="$(
-    api_request \
-      PATCH \
-      "${grant_url}?updateMask=appLevelPermissions" \
-      "$body_file" \
-      "$payload"
-  )"
-
-  if is_success_status "$status"; then
-    log "Updated app grant for ${PACKAGE_NAME}."
-    rm -f "$body_file"
-    return
-  fi
-
-  if [[ "$status" != "404" ]]; then
-    log "Failed to update app grant. HTTP ${status}"
-    print_api_error "$body_file"
-    rm -f "$body_file"
-    exit 1
-  fi
-
-  rm -f "$body_file"
-  body_file="$(response_body_file)"
-
-  log "App grant does not exist; creating it."
-
-  status="$(
-    api_request \
-      POST \
-      "$create_url" \
-      "$body_file" \
-      "$payload"
-  )"
-
-  if is_success_status "$status"; then
-    log "Created app grant for ${PACKAGE_NAME}."
-    rm -f "$body_file"
-    return
-  fi
-
-  # A concurrent execution may have created the grant between PATCH and POST.
-  if [[ "$status" == "409" ]]; then
-    log "Grant creation returned HTTP 409; retrying as an update."
-    rm -f "$body_file"
-    body_file="$(response_body_file)"
-
-    status="$(
-      api_request \
-        PATCH \
-        "${grant_url}?updateMask=appLevelPermissions" \
-        "$body_file" \
-        "$payload"
-    )"
-
-    if is_success_status "$status"; then
-      log "Updated app grant after concurrent creation."
-      rm -f "$body_file"
-      return
-    fi
-  fi
-
-  log "Failed to create app grant. HTTP ${status}"
-  print_api_error "$body_file"
-  rm -f "$body_file"
-  exit 1
-}
-
 prompt_if_missing() {
   local variable_name="$1"
   local prompt="$2"
@@ -304,7 +203,6 @@ main() {
 
   prompt_if_missing DEVELOPER_ID "Enter your Google Play developer ID: "
   prompt_if_missing SERVICE_ACCOUNT_EMAIL "Enter the Google service account email to grant access to: "
-  prompt_if_missing PACKAGE_NAME "Enter the Android app package name: "
 
   # Account-level permissions required when initially creating the user.
   #
@@ -334,11 +232,9 @@ main() {
     fail "Could not obtain a Google OAuth access token."
 
   create_user
-  upsert_app_grant
 
   info "Configuration completed successfully."
   info "User: ${SERVICE_ACCOUNT_EMAIL}"
-  info "App:  ${PACKAGE_NAME}"
 }
 
 main "$@"
