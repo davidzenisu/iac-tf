@@ -44,9 +44,10 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 
-  attribute_condition = length(var.android_apps) > 0 ? join([
-    for repo in values(var.android_apps) : "assertion.sub == '${repo.subject}'"
-  ], " || ") : "assertion.sub != ''"
+  attribute_condition = length(var.android_apps) > 0 ? join(
+    tolist([for repo in values(var.android_apps) : "assertion.sub == '${repo.subject}'"]),
+    " || "
+  ) : "assertion.sub != ''"
 }
 
 resource "google_service_account" "github_actions" {
