@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-
 set -Eeuo pipefail
 
 readonly API_ROOT="https://androidpublisher.googleapis.com/androidpublisher/v3"
 readonly ANDROID_PUBLISHER_SCOPE="https://www.googleapis.com/auth/androidpublisher"
+
+# May require setting quota project "gcloud auth application-default set-quota-project xxx"
 
 red='\033[0;31m'
 green='\033[0;32m'
@@ -53,6 +54,15 @@ print_api_error() {
   fi
 }
 
+require_gcloud_login() {
+  if gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | grep -q .; then
+    echo "Already logged into Google Cloud CLI."
+  else
+    echo "Google Cloud CLI login required."
+    gcloud auth application-default login --scopes "$ANDROID_PUBLISHER_SCOPE,https://www.googleapis.com/auth/cloud-platform"
+  fi
+}
+
 get_access_token() {
   # An explicitly supplied token takes precedence.
   if [[ -n "${ACCESS_TOKEN:-}" ]]; then
@@ -62,7 +72,8 @@ get_access_token() {
 
   # This uses Application Default Credentials. In GitHub Actions,
   # google-github-actions/auth can create the ADC credential file.
-  gcloud auth print-access-token
+  # export to 
+  gcloud auth application-default print-access-token
 }
 
 api_request() {
@@ -79,6 +90,7 @@ api_request() {
     --write-out '%{http_code}'
     --header "Authorization: Bearer ${ACCESS_TOKEN}"
     --header 'Accept: application/json'
+    --header "x-goog-user-project: ${GCP_PROJECT_ID}"
   )
 
   if [[ -n "$payload" ]]; then
@@ -166,15 +178,15 @@ create_user() {
   if is_success_status "$status"; then
     log "Created Play Console user ${SERVICE_ACCOUNT_EMAIL}."
     rm -f "$body_file"
-    return
+    return 0
   fi
 
   log "User creation returned HTTP ${status}; checking whether the user already exists."
 
   if user_exists; then
-    log "Play Console user ${SERVICE_ACCOUNT_EMAIL} already exists."
+    log "Play Console user ${SERVICE_ACCOUNT_EMAIL} already exists; continuing with permission updates."
     rm -f "$body_file"
-    return
+    return 0
   fi
 
   log "Failed to create Play Console user. HTTP ${status}"
@@ -201,8 +213,13 @@ main() {
   require_command jq
   require_command gcloud
 
+  info "Logging in to Google Cloud..."
+  require_gcloud_login
+  
+
   prompt_if_missing DEVELOPER_ID "Enter your Google Play developer ID: "
   prompt_if_missing SERVICE_ACCOUNT_EMAIL "Enter the Google service account email to grant access to: "
+  prompt_if_missing GCP_PROJECT_ID "Enter the Google Cloud project ID for quota billing: "
 
   # Account-level permissions required when initially creating the user.
   #
@@ -211,7 +228,7 @@ main() {
   # with app-only access do not necessarily need this permission.
   GLOBAL_PERMISSIONS_JSON="$(
     printf '%s' \
-      "${GLOBAL_PERMISSIONS_JSON:-[\"CAN_VIEW_NON_FINANCIAL_DATA_GLOBAL\"]}" |
+      "${GLOBAL_PERMISSIONS_JSON:-[\"CAN_MANAGE_PERMISSIONS_GLOBAL\"]}" |
       jq -c .
   )"
 
