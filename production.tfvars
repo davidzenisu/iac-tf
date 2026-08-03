@@ -47,8 +47,11 @@ static_web_apps = {
   }
 }
 
+play_store_developer_id = "6400912963140305270"
+
 android_apps = {
   "game-gods-pet" = {
-    subject = "repo:davidzenisu@32648667/game-gods-pet@1014907206"
+    gh_oidc_subject = "repo:davidzenisu@32648667/game-gods-pet@1014907206"
+    android_app_id  = "com.zenisu.godspet"
   }
 }

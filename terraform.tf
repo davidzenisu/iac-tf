@@ -16,6 +16,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 7.0"
     }
+    googleplay = {
+      source  = "Oliver-Binns/googleplay"
+      version = "~> 0.6"
+    }
   }
   backend "azurerm" {}
 }

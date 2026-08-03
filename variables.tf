@@ -37,10 +37,17 @@ variable "static_web_apps" {
   default = {}
 }
 
+variable "play_store_developer_id" {
+  description = "The Google Play Developer ID. Ideally passed as senstive environment variables (e.g. GitHub secret)."
+  type        = string
+  default     = null
+}
+
 variable "android_apps" {
   description = "A map of Android apps with the immutable GitHub OIDC subject token that may impersonate a dedicated service account."
   type = map(object({
-    subject = string
+    gh_oidc_subject = string
+    android_app_id  = string
   }))
   default = {}
 }
