@@ -47,7 +47,7 @@ static_web_apps = {
   }
 }
 
-play_store_developer_id = "6400912963140305270"
+play_store_developer_id = "xxx"
 
 android_apps = {
   "game-gods-pet" = {
