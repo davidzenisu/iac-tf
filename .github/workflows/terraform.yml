@@ -155,6 +155,8 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_ID }}
+        # Required for google play api
+        access_token_scopes: https://www.googleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/cloud-platform
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
