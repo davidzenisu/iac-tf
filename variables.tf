@@ -46,7 +46,8 @@ variable "play_store_developer_id" {
 variable "android_apps" {
   description = "A map of Android apps with the immutable GitHub OIDC subject token that may impersonate a dedicated service account."
   type = map(object({
-    subject = string
+    gh_oidc_subject = string
+    android_app_id  = string
   }))
   default = {}
 }
