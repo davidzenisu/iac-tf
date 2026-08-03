@@ -46,3 +46,9 @@ static_web_apps = {
     custom_domain       = "gods"
   }
 }
+
+android_apps = {
+  "game-gods-pet" = {
+    subject = "repo:davidzenisu@32648667/game-gods-pet@1014907206"
+  }
+}
