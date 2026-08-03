@@ -21,6 +21,11 @@ resource "google_iam_workload_identity_pool" "github" {
   workload_identity_pool_id = "github-actions"
   display_name              = "GitHub Actions"
   description               = "Workload Identity Pool for GitHub Actions"
+
+  depends_on = [
+    google_project_service.iam_api,
+    google_project_service.iamcredentials_api
+  ]
 }
 
 resource "google_iam_workload_identity_pool_provider" "github" {
@@ -50,6 +55,10 @@ resource "google_service_account" "github_actions" {
   project      = data.google_project.project.project_id
   account_id   = substr(replace("github-${each.key}", "/", "-"), 0, 30)
   display_name = "GitHub Actions Workload Identity Federation for ${each.key}"
+
+  depends_on = [
+    google_iam_workload_identity_pool.github
+  ]
 }
 
 resource "google_service_account_iam_member" "github_actions_wif" {
