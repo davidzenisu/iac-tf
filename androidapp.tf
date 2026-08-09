@@ -91,3 +91,12 @@ resource "googleplay_app_iam" "github_actions" {
     "CAN_VIEW_FINANCIAL_DATA"
   ]
 }
+
+# For each app, also create a separate keystore
+
+ephemeral "local" "command" {
+  for_each = var.android_apps
+
+  command   = "openssl"
+  arguments = ["rand", "-base64", "32"]
+}
