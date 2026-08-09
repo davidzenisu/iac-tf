@@ -94,7 +94,7 @@ resource "googleplay_app_iam" "github_actions" {
 
 # For each app, also create a separate keystore
 
-ephemeral "local" "command" {
+ephemeral "local_command" "android_keystore_password" {
   for_each = var.android_apps
 
   command   = "openssl"
