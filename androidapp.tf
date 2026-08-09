@@ -75,9 +75,7 @@ resource "googleplay_user" "github_actions" {
 
   email = google_service_account.github_actions[each.key].email
   
-  global_permissions = [
-    "CAN_VIEW_NON_FINANCIAL_DATA_GLOBAL"
-  ]
+  global_permissions = ["CAN_VIEW_NON_FINANCIAL_DATA_GLOBAL"]
 }
 
 resource "googleplay_app_iam" "github_actions" {
