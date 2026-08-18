@@ -21,6 +21,11 @@ dns_records = {
     content = "did=did:plc:33zzvayo7qynpcba2varefbq"
     type    = "TXT"
   }
+  "easyname" = {
+    name    = "easyname4a8eec77f5b90b72"
+    content = "www.easyname.com"
+    type    = "CNAME"
+  }
 }
 
 static_web_apps = {
