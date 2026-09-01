@@ -24,7 +24,7 @@ dns_records = {
 }
 
 static_web_apps = {
- "portfolio" = {
+  "portfolio" = {
     name                = "stapp-zenisu-portfolio"
     resource_group_name = "rg-zenisu-portfolio"
     location            = "westeurope"
