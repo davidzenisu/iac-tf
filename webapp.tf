@@ -33,30 +33,28 @@ resource "azurerm_federated_identity_credential" "static_web_app_pr" {
   subject                   = "repo:${each.value.source_repo}:pull_request"
 }
 
-# static web app
-module "static_web_app" {
+resource "azurerm_static_web_app" "static_web_app" {
   for_each = var.static_web_apps
-
-  source  = "Azure/avm-res-web-staticsite/azurerm"
-  version = "~> 0.6.2"
 
   name                = each.value.name
   location            = azurerm_resource_group.static_web_app[each.key].location
   resource_group_name = azurerm_resource_group.static_web_app[each.key].name
-  app_settings = {
+  sku_tier            = "Free"
+  sku_size            = "Free"
 
+  lifecycle {
+    ignore_changes = [
+      app_settings,
+    ]
   }
+}
 
-  role_assignments = {
-    "gh_identity" = {
-      principal_id               = azurerm_user_assigned_identity.static_web_app[each.key].principal_id
-      role_definition_id_or_name = "Contributor" #no custom role exists
-      description                = "GitHub Actions identity for Static Web App"
-    }
-  }
+resource "azurerm_role_assignment" "static_web_app_github_identity" {
+  for_each = var.static_web_apps
 
-
-  enable_telemetry = false
+  scope                = azurerm_static_web_app.static_web_app[each.key].id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.static_web_app[each.key].principal_id
 }
 
 resource "cloudflare_record" "static_web_app" {
@@ -64,7 +62,7 @@ resource "cloudflare_record" "static_web_app" {
 
   zone_id = data.cloudflare_zone.this["default"].id
   name    = each.value.custom_domain
-  content = module.static_web_app[each.key].resource_uri
+  content = azurerm_static_web_app.static_web_app[each.key].default_host_name
   type    = "CNAME"
   proxied = false
 }
@@ -88,7 +86,7 @@ resource "azurerm_static_web_app_custom_domain" "static_web_app" {
     for k, v in var.static_web_apps : k => v if v.custom_domain != null
   }
 
-  static_web_app_id = module.static_web_app[each.key].resource_id
+  static_web_app_id = azurerm_static_web_app.static_web_app[each.key].id
   domain_name       = "${each.value.custom_domain}.${var.zone_name}"
   validation_type   = "cname-delegation"
 
