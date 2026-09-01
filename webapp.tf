@@ -45,6 +45,8 @@ resource "azurerm_static_web_app" "static_web_app" {
   lifecycle {
     ignore_changes = [
       app_settings,
+      repository_branch,
+      repository_url,
     ]
   }
 }
