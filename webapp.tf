@@ -70,9 +70,7 @@ resource "cloudflare_record" "static_web_app" {
 }
 
 resource "time_sleep" "static_web_app_custom_domain_wait" {
-  count = length(
-    [for v in var.static_web_apps : v if v.custom_domain != null]
-  ) != 0 ? 1 : 0
+  for_each = var.static_web_apps
 
   create_duration  = "300s"
   destroy_duration = "0s"
