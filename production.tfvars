@@ -1,11 +1,6 @@
 zone_name = "zeni-su.com"
 
 dns_records = {
-  "david" = {
-    name    = "david"
-    content = "davidzenisu.github.io"
-    type    = "CNAME"
-  }
   "github" = {
     name    = "github"
     content = "davidzenisu.github.io"
@@ -29,6 +24,13 @@ dns_records = {
 }
 
 static_web_apps = {
+ "portfolio" = {
+    name                = "stapp-zenisu-portfolio"
+    resource_group_name = "rg-zenisu-portfolio"
+    location            = "westeurope"
+    source_repo         = "davidzenisu/page-portfolio-littlelink"
+    custom_domain       = "david"
+  }
   "events" = {
     name                = "stapp-zenisu-events"
     resource_group_name = "rg-zenisu-events"
