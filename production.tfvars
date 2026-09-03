@@ -28,28 +28,28 @@ static_web_apps = {
     name                 = "stapp-zenisu-portfolio"
     resource_group_name  = "rg-zenisu-portfolio"
     location             = "westeurope"
-    github_subject_claim = "davidzenisu/page-portfolio-littlelink"
+    github_subject_claim = "repo:davidzenisu@32648667/page-portfolio-littlelink@1338235825"
     custom_domain        = "david"
   }
   "events" = {
     name                 = "stapp-zenisu-events"
     resource_group_name  = "rg-zenisu-events"
     location             = "westeurope"
-    github_subject_claim = "davidzenisu/page-form-collections"
+    github_subject_claim = "repo:davidzenisu@32648667/page-form-collections@1039886512"
     custom_domain        = "events"
   }
   "radio-guesser" = {
     name                 = "stapp-zenisu-radio-guesser"
     resource_group_name  = "rg-zenisu-radio-guesser"
     location             = "westeurope"
-    github_subject_claim = "davidzenisu/game-radio-guesser"
+    github_subject_claim = "repo:davidzenisu@32648667/game-radio-guesser@1086371762"
     custom_domain        = "radio"
   }
   "gods-pet" = {
     name                 = "stapp-zenisu-gods-pet"
     resource_group_name  = "rg-zenisu-gods-pet"
     location             = "westeurope"
-    github_subject_claim = "davidzenisu/game-gods-pet"
+    github_subject_claim = "repo:davidzenisu@32648667/game-gods-pet@1014907206"
     custom_domain        = "gods"
   }
 }
