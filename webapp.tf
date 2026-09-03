@@ -20,7 +20,7 @@ resource "azurerm_federated_identity_credential" "static_web_app_main_branch" {
   audience                  = ["api://AzureADTokenExchange"]
   issuer                    = "https://token.actions.githubusercontent.com"
   user_assigned_identity_id = azurerm_user_assigned_identity.static_web_app[each.key].id
-  subject                   = "repo:${each.value.source_repo}:ref:refs/heads/main"
+  subject                   = "repo:${each.value.github_subject_claim}:ref:refs/heads/main"
 }
 
 resource "azurerm_federated_identity_credential" "static_web_app_pr" {
@@ -30,7 +30,7 @@ resource "azurerm_federated_identity_credential" "static_web_app_pr" {
   audience                  = ["api://AzureADTokenExchange"]
   issuer                    = "https://token.actions.githubusercontent.com"
   user_assigned_identity_id = azurerm_user_assigned_identity.static_web_app[each.key].id
-  subject                   = "repo:${each.value.source_repo}:pull_request"
+  subject                   = "repo:${each.value.github_subject_claim}:pull_request"
 }
 
 resource "azurerm_static_web_app" "static_web_app" {
