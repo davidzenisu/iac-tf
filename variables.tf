@@ -28,13 +28,22 @@ DESCRIPTION
 
 variable "static_web_apps" {
   type = map(object({
-    name                = string
-    resource_group_name = string
-    location            = string
-    source_repo         = string
-    custom_domain       = optional(string)
+    name                 = string
+    resource_group_name  = string
+    location             = string
+    github_subject_claim = string
+    custom_domain        = optional(string)
   }))
-  default = {}
+  default     = {}
+  description = <<DESCRIPTION
+A map of Azure Static Web Apps and their GitHub Actions federation settings. The map key is deliberately arbitrary to avoid issues where map keys may be unknown at plan time.
+
+- `name` - The name of the Azure Static Web App.
+- `resource_group_name` - The name of the resource group containing the Static Web App and its user-assigned identity.
+- `location` - The Azure region where the resources are created.
+- `github_subject_claim` - The GitHub repository owner and name used to build the immutable OIDC subject claims for the main branch and pull requests. See [OpenID Connect reference - GitHub Docs](https://docs.github.com/en/actions/reference/security/oidc#immutable-subject-claims).
+- `custom_domain` - (Optional) The subdomain to associate with the Static Web App. Defaults to null.
+DESCRIPTION
 }
 
 variable "play_store_developer_id" {
