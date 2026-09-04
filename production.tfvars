@@ -54,6 +54,8 @@ static_web_apps = {
   }
 }
 
+github_org_id = "32648667"
+
 play_store_developer_id = "6400912963140305270"
 
 android_apps = {

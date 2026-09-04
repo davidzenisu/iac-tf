@@ -44,10 +44,7 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 
-  attribute_condition = length(var.android_apps) > 0 ? join(
-    " || ",
-    tolist([for repo in values(var.android_apps) : "assertion.sub == '${repo.gh_oidc_subject}:pull_request'"])
-  ) : "assertion.sub != ''"
+  attribute_condition = "assertion.repository_owner_id == '${var.github_org_id}'"
 }
 
 resource "google_service_account" "github_actions" {
@@ -62,12 +59,28 @@ resource "google_service_account" "github_actions" {
   ]
 }
 
-resource "google_service_account_iam_member" "github_actions_wif" {
+resource "google_service_account_iam_member" "github_actions_wif_pr" {
   for_each = var.android_apps
 
   service_account_id = google_service_account.github_actions[each.key].name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/subject/${each.value.gh_oidc_subject}:pull_request"
+  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/subject/${each.value.gh_oidc_subject}:environment:pr"
+}
+
+resource "google_service_account_iam_member" "github_actions_wif_main" {
+  for_each = var.android_apps
+
+  service_account_id = google_service_account.github_actions[each.key].name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/subject/${each.value.gh_oidc_subject}:environment:main"
+}
+
+resource "google_service_account_iam_member" "github_actions_wif_release" {
+  for_each = var.android_apps
+
+  service_account_id = google_service_account.github_actions[each.key].name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/subject/${each.value.gh_oidc_subject}:environment:release"
 }
 
 resource "googleplay_user" "github_actions" {
