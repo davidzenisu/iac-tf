@@ -46,7 +46,7 @@ resource "google_iam_workload_identity_pool_provider" "github" {
 
   attribute_condition = length(var.android_apps) > 0 ? join(
     " || ",
-    tolist([for repo in values(var.android_apps) : "assertion.sub == '${repo.gh_oidc_subject}'"])
+    tolist([for repo in values(var.android_apps) : "assertion.sub == '${repo.gh_oidc_subject}:pull_request'"])
   ) : "assertion.sub != ''"
 }
 
@@ -67,7 +67,7 @@ resource "google_service_account_iam_member" "github_actions_wif" {
 
   service_account_id = google_service_account.github_actions[each.key].name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.google.subject/${each.value.gh_oidc_subject}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.google.subject/${each.value.gh_oidc_subject}:pull_request"
 }
 
 resource "googleplay_user" "github_actions" {
