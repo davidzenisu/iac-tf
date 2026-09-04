@@ -46,6 +46,12 @@ A map of Azure Static Web Apps and their GitHub Actions federation settings. The
 DESCRIPTION
 }
 
+variable "github_org_id" {
+  description = "The GitHub organization id. Could be passed dynamically from the GitHub workflow."
+  type        = string
+  default     = null
+}
+
 variable "play_store_developer_id" {
   description = "The Google Play Developer ID. Ideally passed as senstive environment variables (e.g. GitHub secret)."
   type        = string
