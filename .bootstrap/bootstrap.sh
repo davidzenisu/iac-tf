@@ -38,6 +38,16 @@ if ! gcloud auth application-default print-access-token >/dev/null 2>&1; then
     --scopes='https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/androidpublisher'
 fi
 
+if [[ -z "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]]; then
+  GCLOUD_CONFIG_DIR="$(gcloud info --format='value(config.paths.global_config_dir)')"
+  export GOOGLE_APPLICATION_CREDENTIALS="$GCLOUD_CONFIG_DIR/application_default_credentials.json"
+fi
+
+if [[ ! -f "$GOOGLE_APPLICATION_CREDENTIALS" ]]; then
+  printf 'Google application credentials file not found: %s\n' "$GOOGLE_APPLICATION_CREDENTIALS" >&2
+  exit 1
+fi
+
 REPOSITORY_SLUG="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 export TF_VAR_github_owner="${REPOSITORY_SLUG%%/*}"
 export TF_VAR_github_repository="${REPOSITORY_SLUG#*/}"
