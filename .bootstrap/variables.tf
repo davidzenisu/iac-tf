@@ -19,7 +19,17 @@ variable "azure_backend_resource_group" {
 }
 
 variable "azure_backend_storage_account" {
-  description = "Existing Azure storage account used by the GitHub Actions Terraform backend."
+  description = "Globally unique name for the Azure storage account to create for the GitHub Actions Terraform backend."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9]{3,24}$", var.azure_backend_storage_account))
+    error_message = "Azure storage account names must contain 3 to 24 lowercase letters or numbers."
+  }
+}
+
+variable "azure_location" {
+  description = "Azure region for the backend storage account and GitHub Actions identity."
   type        = string
 }
 

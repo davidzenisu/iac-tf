@@ -45,19 +45,31 @@ resource "google_project" "bootstrap" {
 
 data "azurerm_client_config" "current" {}
 
-data "azurerm_storage_account" "backend" {
-  name                = var.azure_backend_storage_account
-  resource_group_name = var.azure_backend_resource_group
+resource "azurerm_storage_account" "backend" {
+  name                            = var.azure_backend_storage_account
+  resource_group_name             = var.azure_backend_resource_group
+  location                        = var.azure_location
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS"
+  min_tls_version                 = "TLS1_2"
+  https_traffic_only_enabled      = true
+  allow_nested_items_to_be_public = false
+}
+
+resource "azurerm_storage_container" "terraform_state" {
+  name                  = lower(var.github_owner)
+  storage_account_id    = azurerm_storage_account.backend.id
+  container_access_type = "private"
 }
 
 resource "azurerm_user_assigned_identity" "github_actions" {
   name                = "id-gh-${var.github_owner}-${var.github_repository}"
   resource_group_name = var.azure_backend_resource_group
-  location            = data.azurerm_storage_account.backend.location
+  location            = var.azure_location
 }
 
 resource "azurerm_role_assignment" "storage_blob_contributor" {
-  scope                = data.azurerm_storage_account.backend.id
+  scope                = azurerm_storage_account.backend.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.github_actions.principal_id
   principal_type       = "ServicePrincipal"
