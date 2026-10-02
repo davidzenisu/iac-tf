@@ -12,11 +12,13 @@ If you are using the provided GitHub Actions, make sure the following variables 
 
 - *CLOUDFLARE_API_TOKEN*: Token to authenticate with the Cloudflare API. Should be considered highly sensitive. For more details see [here](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/).
 
-Alternatively, you can run the script `.scripts/init-repo.sh`. After logging into GitHub, the script will set the secret based on your input:
+Provision the GitHub Actions identities and repository secrets locally with the Terraform configuration in `.bootstrap`:
 
 ```bash
-bash .scripts/init-repo.sh
+bash .bootstrap/bootstrap.sh
 ```
+
+See [.bootstrap/README.md](.bootstrap/README.md) for the required CLI access, local variables, and Cloudflare API token setup.
 
 ### Environment variables (local development)
 
