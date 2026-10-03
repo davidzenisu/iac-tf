@@ -58,6 +58,7 @@ resource "azurerm_storage_account" "backend" {
   min_tls_version                 = "TLS1_2"
   https_traffic_only_enabled      = true
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = false
 }
 
 resource "azurerm_storage_container" "terraform_state" {
@@ -77,6 +78,21 @@ resource "azurerm_role_assignment" "storage_blob_contributor" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.github_actions.principal_id
   principal_type       = "ServicePrincipal"
+}
+
+resource "azurerm_role_assignment" "storage_backup_blob_contributor" {
+  scope                = azurerm_storage_account.backend.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = data.azurerm_client_config.current.object_id
+  principal_type       = "User"
+}
+
+resource "time_sleep" "storage_blob_rbac_propagation" {
+  create_duration = "30s"
+
+  triggers = {
+    role_assignment_id = azurerm_role_assignment.storage_backup_blob_contributor.id
+  }
 }
 
 resource "azurerm_role_assignment" "subscription_contributor" {

@@ -4,12 +4,16 @@ set -euo pipefail
 BOOTSTRAP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$BOOTSTRAP_DIR/.." && pwd)"
 TFVARS_FILE="$BOOTSTRAP_DIR/terraform.tfvars"
+STATE_SNAPSHOT=""
 GITHUB_TOKEN_CACHE="${GITHUB_TOKEN:-}"
 GH_TOKEN_CACHE="${GH_TOKEN:-}"
 export GITHUB_TOKEN=""
 unset GH_TOKEN
 
 restore_github_tokens() {
+  if [[ -n "$STATE_SNAPSHOT" ]]; then
+    rm -f -- "$STATE_SNAPSHOT"
+  fi
   export GITHUB_TOKEN="$GITHUB_TOKEN_CACHE"
   if [[ -n "$GH_TOKEN_CACHE" ]]; then
     export GH_TOKEN="$GH_TOKEN_CACHE"
@@ -77,3 +81,20 @@ terraform -chdir="$BOOTSTRAP_DIR" init
 GCP_PROJECT_ID="$(terraform -chdir="$BOOTSTRAP_DIR" console -var-file="$TFVARS_FILE" <<< 'var.gcp_project_id' | tr -d '"')"
 gcloud auth application-default set-quota-project "$GCP_PROJECT_ID"
 terraform -chdir="$BOOTSTRAP_DIR" apply -var-file="$TFVARS_FILE" "$@"
+
+AZURE_STORAGE_ACCOUNT_NAME="$(terraform -chdir="$BOOTSTRAP_DIR" output -raw azure_backend_storage_account_name)"
+AZURE_STORAGE_CONTAINER_NAME="$(terraform -chdir="$BOOTSTRAP_DIR" output -raw azure_backend_storage_container_name)"
+STATE_SNAPSHOT="$(mktemp)"
+terraform -chdir="$BOOTSTRAP_DIR" state pull > "$STATE_SNAPSHOT"
+if ! az storage blob upload \
+  --account-name "$AZURE_STORAGE_ACCOUNT_NAME" \
+  --container-name "$AZURE_STORAGE_CONTAINER_NAME" \
+  --name "terraform.tfstate.bak" \
+  --file "$STATE_SNAPSHOT" \
+  --auth-mode login \
+  --overwrite; then
+  printf 'Failed to upload terraform.tfstate.bak. Ensure the current Azure identity has Storage Blob Data Contributor access to the state container.\n' >&2
+  exit 1
+fi
+rm -f -- "$STATE_SNAPSHOT"
+STATE_SNAPSHOT=""
