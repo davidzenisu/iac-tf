@@ -20,6 +20,22 @@ terraform {
       source  = "Oliver-Binns/googleplay"
       version = "~> 0.6"
     }
+    auth0 = {
+      source  = "auth0/auth0"
+      version = "~> 1.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+    supabase = {
+      source  = "supabase/supabase"
+      version = "~> 1.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.14"
+    }
   }
   backend "azurerm" {}
 }

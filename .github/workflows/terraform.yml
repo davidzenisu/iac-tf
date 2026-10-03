@@ -27,6 +27,10 @@ env:
   ARM_BACKEND_CONTAINER: "${{ github.repository_owner }}"
   ARM_BACKEND_KEY: "${{ github.event.repository.name }}.tfstate"
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+  AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+  AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+  AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
 
 jobs:
   terraform-plan:

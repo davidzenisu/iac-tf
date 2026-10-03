@@ -69,6 +69,11 @@ variable "play_store_developer_id" {
   type        = string
 }
 
+variable "auth0_domain" {
+  description = "Auth0 domain for the tenant."
+  type        = string
+}
+
 variable "cloudflare_api_token" {
   description = "Cloudflare API token stored as a GitHub Actions secret for the main Terraform workflow."
   type        = string
@@ -78,4 +83,10 @@ variable "cloudflare_api_token" {
     condition     = length(trimspace(var.cloudflare_api_token)) > 0
     error_message = "Set cloudflare_api_token in .bootstrap/terraform.tfvars."
   }
+}
+
+variable "supabase_access_token" {
+  description = "Supabase personal access token made available to the main Terraform workflow."
+  type        = string
+  sensitive   = true
 }
