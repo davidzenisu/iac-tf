@@ -30,7 +30,7 @@ require_command() {
   }
 }
 
-for command in az gcloud gh terraform; do
+for command in az auth0 gcloud gh terraform; do
   require_command "$command"
 done
 
@@ -41,6 +41,11 @@ fi
 
 if ! gh auth status >/dev/null 2>&1; then
   gh auth login
+fi
+
+if ! auth0 api get tenants/settings >/dev/null; then
+  printf 'Auth0 CLI is not authenticated or cannot access tenant settings; starting Auth0 device login.\n' >&2
+  auth0 login --agent-mode
 fi
 
 if ! az account show >/dev/null 2>&1; then
