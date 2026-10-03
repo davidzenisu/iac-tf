@@ -1,0 +1,28 @@
+variable "fullstack_apps" {
+  description = "Fullstack projects and the cloud resources enabled for each project."
+  type = map(object({
+    project_name             = string
+    location                 = string
+    github_subject_claim     = string
+    custom_domain            = optional(string)
+    frontend                 = optional(bool, true)
+    backend                  = optional(bool, true)
+    storage                  = optional(bool, true)
+    database                 = optional(bool, true)
+    auth                     = optional(bool, true)
+    supabase_organization_id = optional(string)
+    supabase_region          = optional(string, "eu-west-1")
+  }))
+}
+
+variable "zone_name" {
+  description = "DNS zone suffix for custom frontend domains."
+  type        = string
+  default     = null
+}
+
+variable "zone_id" {
+  description = "Cloudflare zone ID used to create custom frontend DNS records."
+  type        = string
+  default     = null
+}

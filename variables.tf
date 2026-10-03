@@ -46,6 +46,60 @@ A map of Azure Static Web Apps and their GitHub Actions federation settings. The
 DESCRIPTION
 }
 
+variable "fullstack_apps" {
+  description = "Fullstack projects and the cloud resources enabled for each project."
+  type = map(object({
+    project_name             = string
+    location                 = string
+    github_subject_claim     = string
+    custom_domain            = optional(string)
+    frontend                 = optional(bool, true)
+    backend                  = optional(bool, true)
+    storage                  = optional(bool, true)
+    database                 = optional(bool, true)
+    auth                     = optional(bool, true)
+    supabase_organization_id = optional(string)
+    supabase_region          = optional(string, "eu-west-1")
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for app in values(var.fullstack_apps) :
+      can(regex("^[a-z0-9][a-z0-9-]{0,18}[a-z0-9]$", app.project_name))
+    ])
+    error_message = "Each project_name must be 2-20 lowercase letters, numbers, or hyphens, and start and end with a letter or number."
+  }
+
+  validation {
+    condition = length(distinct([
+      for app in values(var.fullstack_apps) : app.project_name
+    ])) == length(var.fullstack_apps)
+    error_message = "Each project_name in fullstack_apps must be unique."
+  }
+
+  validation {
+    condition = alltrue([
+      for app in values(var.fullstack_apps) :
+      (!app.storage || app.backend) &&
+      (!app.auth || app.frontend) &&
+      (!app.database || app.supabase_organization_id != null)
+    ])
+    error_message = "Storage requires backend=true, auth requires frontend=true, and database=true requires supabase_organization_id."
+  }
+
+  validation {
+    condition = (
+      var.zone_name != null ||
+      alltrue([
+        for app in values(var.fullstack_apps) :
+        !app.frontend || app.custom_domain == null
+      ])
+    )
+    error_message = "A zone_name must be configured when a fullstack app uses a custom_domain."
+  }
+}
+
 variable "github_org_id" {
   description = "The GitHub organization id. Could be passed dynamically from the GitHub workflow."
   type        = string
