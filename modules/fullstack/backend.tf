@@ -68,7 +68,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
 resource "azurerm_role_assignment" "github_function" {
   for_each = local.backend_apps
 
-  scope                = azurerm_linux_function_app.this[each.key].id
+  scope                = azurerm_function_app_flex_consumption.this[each.key].id
   role_definition_name = "Website Contributor"
   principal_id         = azurerm_user_assigned_identity.github[each.key].principal_id
 }
