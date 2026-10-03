@@ -123,7 +123,7 @@ resource "google_project_service" "bootstrap_apis" {
 resource "google_service_account" "github_actions" {
   project      = var.gcp_project_id
   account_id   = var.gcp_service_account_name
-  display_name = "GitHub Actions Workload Identity Federation"
+  display_name = "GitHub Actions Workload Identity Federation ${var.github_owner}/${var.github_repository}"
 
   depends_on = [google_project_service.bootstrap_apis]
 }
