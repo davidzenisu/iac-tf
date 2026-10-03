@@ -103,3 +103,35 @@ resource "azurerm_role_assignment" "github_function" {
   role_definition_name = "Website Contributor"
   principal_id         = azurerm_user_assigned_identity.github[each.key].principal_id
 }
+
+resource "cloudflare_record" "function_app" {
+  for_each = local.backend_apps
+
+  zone_id = var.zone_id
+  name    = each.value.custom_domain
+  content = "api.${azurerm_function_app_flex_consumption.this[each.key].default_hostname}"
+  type    = "CNAME"
+  proxied = false
+}
+
+resource "time_sleep" "backend_custom_domain_wait" {
+  for_each = local.backend_apps
+
+  create_duration  = "300s"
+  destroy_duration = "0s"
+
+  depends_on = [
+    cloudflare_record.static_web_app,
+  ]
+}
+
+resource "azurerm_app_service_custom_hostname_binding" "example" {
+  hostname            = "api.${each.value.custom_domain}.${var.zone_name}"
+  app_service_name    = azurerm_function_app_flex_consumption.this.name
+  resource_group_name = azurerm_function_app_flex_consumption.resource_group_name
+
+  depends_on = [
+    cloudflare_record.function_app,
+    time_sleep.backend_custom_domain_wait,
+  ]
+}
