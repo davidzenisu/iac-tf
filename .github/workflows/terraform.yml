@@ -144,7 +144,9 @@ jobs:
                 
   terraform-apply:
     name: 'Terraform Apply'
-    if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
+    # TODO: To disable branch apply
+    if: needs.terraform-plan.outputs.tfplanExitCode == 2
+    #if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
     runs-on: ubuntu-latest
     #environment: production
     needs: [terraform-plan]
