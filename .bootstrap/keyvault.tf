@@ -42,9 +42,10 @@ resource "time_sleep" "key_vault_rbac_propagation" {
 resource "azurerm_key_vault_secret" "github_actions" {
   for_each = local.key_vault_secret_values
 
-  name         = each.key
-  value        = each.value
-  key_vault_id = azurerm_key_vault.bootstrap.id
+  name             = each.key
+  value_wo         = each.value
+  value_wo_version = 1
+  key_vault_id     = azurerm_key_vault.bootstrap.id
 
   depends_on = [time_sleep.key_vault_rbac_propagation]
 }
