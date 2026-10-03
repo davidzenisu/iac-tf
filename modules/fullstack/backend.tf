@@ -52,6 +52,17 @@ resource "azurerm_function_app_flex_consumption" "this" {
   https_only                                     = true
   webdeploy_publish_basic_authentication_enabled = false
 
+  app_settings = contains(keys(local.database_apps), each.key) ? {
+    SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[each.key].versionless_id})"
+  } : {}
+
+  identity {
+    type = "UserAssigned"
+    identity_ids = [
+      azurerm_user_assigned_identity.function[each.key].id,
+    ]
+  }
+
   storage_container_type            = "blobContainer"
   storage_container_endpoint        = "${azurerm_storage_account.this[each.key].primary_blob_endpoint}${azurerm_storage_container.this[each.key].name}"
   storage_authentication_type       = "UserAssignedIdentity"
