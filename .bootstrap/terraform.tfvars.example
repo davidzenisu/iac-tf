@@ -7,6 +7,7 @@ gcp_project_name              = "replace-with-project-display-name"
 gcp_billing_account_id        = "replace-with-billing-account-id"
 gcp_service_account_name      = "github-actions-sa"
 play_store_developer_id       = "replace-with-google-play-developer-id"
+auth0_domain                  = "replace-with-auth0-domain"
 
 # Create a Cloudflare API token with Zone:Read and DNS:Edit for only the zone(s) managed by this repository.
 # The token is written to the GitHub Actions secret CLOUDFLARE_API_TOKEN.

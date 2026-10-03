@@ -11,8 +11,8 @@ locals {
     GCP_SERVICE_ACCOUNT_ID = google_service_account.github_actions.email
     SUPABASE_ACCESS_TOKEN  = var.supabase_access_token
     AUTH0_DOMAIN           = var.auth0_domain
-    AUTH0_CLIENT_ID        = var.auth0_client_id
-    AUTH0_CLIENT_SECRET    = var.auth0_client_secret
+    AUTH0_CLIENT_ID        = auth0_client.github_actions.client_id
+    AUTH0_CLIENT_SECRET    = auth0_client_credentials.github_actions.client_secret
   }
 }
 

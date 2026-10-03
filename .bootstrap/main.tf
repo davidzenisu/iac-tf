@@ -173,3 +173,19 @@ resource "googleplay_user" "github_actions" {
     "CAN_VIEW_NON_FINANCIAL_DATA_GLOBAL",
   ]
 }
+
+resource "auth0_client" "github_actions" {
+  name        = "Auth0 Terraform Provider"
+  description = "Auth0 Terraform Provider M2M via GitHub Actions"
+  app_type    = "non_interactive"
+
+  jwt_configuration {
+    alg = "RS256"
+  }
+}
+
+resource "auth0_client_credentials" "github_actions" {
+  client_id             = auth0_client.github_actions.id
+  authentication_method = "client_secret_basic"
+}
+

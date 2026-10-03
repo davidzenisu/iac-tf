@@ -69,6 +69,11 @@ variable "play_store_developer_id" {
   type        = string
 }
 
+variable "auth0_domain" {
+  description = "Auth0 domain for the tenant."
+  type        = string
+}
+
 variable "cloudflare_api_token" {
   description = "Cloudflare API token stored as a GitHub Actions secret for the main Terraform workflow."
   type        = string
@@ -82,24 +87,6 @@ variable "cloudflare_api_token" {
 
 variable "supabase_access_token" {
   description = "Supabase personal access token made available to the main Terraform workflow."
-  type        = string
-  sensitive   = true
-}
-
-variable "auth0_domain" {
-  description = "Auth0 tenant domain used by the main Terraform workflow."
-  type        = string
-  sensitive   = true
-}
-
-variable "auth0_client_id" {
-  description = "Auth0 machine-to-machine application client ID used by the main Terraform workflow."
-  type        = string
-  sensitive   = true
-}
-
-variable "auth0_client_secret" {
-  description = "Auth0 machine-to-machine application client secret used by the main Terraform workflow."
   type        = string
   sensitive   = true
 }

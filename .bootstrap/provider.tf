@@ -14,3 +14,8 @@ provider "googleplay" {
 provider "github" {
   owner = var.github_owner
 }
+
+provider "auth0" {
+  cli_login = true
+  domain    = var.auth0_domain
+}
