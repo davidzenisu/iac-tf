@@ -13,3 +13,10 @@ resource "supabase_project" "this" {
   database_password = random_password.this[each.key].result
   region            = each.value.supabase_region
 }
+
+resource "azurerm_keyvault_secret" "supabase_db_password" {
+  for_each     = local.database_apps
+  name         = "supabase-db-password"
+  value        = random_password.this[each.key].result
+  key_vault_id = azurerm_key_vault.this[each.key].id
+}
