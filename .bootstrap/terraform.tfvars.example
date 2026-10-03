@@ -1,5 +1,6 @@
 azure_backend_resource_group  = "replace-with-existing-resource-group"
 azure_backend_storage_account = "replace-with-globally-unique-storage-name"
+azure_key_vault_name          = "replace-with-kv-name"
 azure_location                = "westeurope"
 gcp_project_id                = "replace-with-unique-project-id"
 gcp_project_name              = "replace-with-project-display-name"

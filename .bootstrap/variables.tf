@@ -28,6 +28,16 @@ variable "azure_backend_storage_account" {
   }
 }
 
+variable "azure_key_vault_name" {
+  description = "Globally unique name for the Azure Key Vault used to store GitHub Actions secrets."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9-]{1,22}[a-zA-Z0-9]$", var.azure_key_vault_name))
+    error_message = "Azure Key Vault names must be 3 to 24 characters, start with a letter, end with a letter or number, and contain only letters, numbers, or hyphens."
+  }
+}
+
 variable "azure_location" {
   description = "Azure region for the backend storage account and GitHub Actions identity."
   type        = string
