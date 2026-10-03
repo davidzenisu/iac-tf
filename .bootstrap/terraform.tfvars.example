@@ -9,6 +9,12 @@ gcp_service_account_name      = "github-actions-sa"
 play_store_developer_id       = "replace-with-google-play-developer-id"
 auth0_domain                  = "replace-with-auth0-domain"
 
-# Create a Cloudflare API token with Zone:Read and DNS:Edit for only the zone(s) managed by this repository.
-# The token is written to the GitHub Actions secret CLOUDFLARE_API_TOKEN.
+# Manually create a Cloudflare API token with Zone:Read and DNS:Edit
+# permissions limited to the zone(s) managed by this repository.
+# https://dash.cloudflare.com/profile/api-tokens
+# This token is written to GitHub Actions and Key Vault.
 cloudflare_api_token = "replace-with-cloudflare-api-token"
+
+# Manually create a Supabase personal access token.
+# https://supabase.com/dashboard/account/tokens
+supabase_access_token = "replace-with-supabase-personal-access-token"
