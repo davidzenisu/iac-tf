@@ -1,5 +1,5 @@
 resource "azurerm_key_vault" "this" {
-  for_each = local.key_vault_apps
+  for_each = var.fullstack_apps
 
   name                = "kv-${substr(replace(each.value.project_name, "-", ""), 0, 14)}-${local.suffixes[each.key]}"
   location            = azurerm_resource_group.this[each.key].location
@@ -13,7 +13,7 @@ resource "azurerm_key_vault" "this" {
 }
 
 resource "azurerm_role_assignment" "github_key_vault" {
-  for_each = local.key_vault_apps
+  for_each = var.fullstack_apps
 
   scope                = azurerm_key_vault.this[each.key].id
   role_definition_name = "Key Vault Secrets Officer"
