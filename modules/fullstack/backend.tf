@@ -10,6 +10,9 @@ resource "azurerm_storage_account" "this" {
   account_kind               = "StorageV2"
   min_tls_version            = "TLS1_2"
   https_traffic_only_enabled = true
+
+  allow_nested_items_to_be_public = false
+  local_user_enabled              = false
 }
 
 resource "azurerm_service_plan" "this" {
@@ -45,6 +48,9 @@ resource "azurerm_function_app_flex_consumption" "this" {
   location            = azurerm_resource_group.this[each.key].location
   resource_group_name = azurerm_resource_group.this[each.key].name
   service_plan_id     = azurerm_service_plan.this[each.key].id
+
+  https_only                                     = true
+  webdeploy_publish_basic_authentication_enabled = false
 
   storage_container_type            = "blobContainer"
   storage_container_endpoint        = "${azurerm_storage_account.this[each.key].primary_blob_endpoint}${azurerm_storage_container.this[each.key].name}"
