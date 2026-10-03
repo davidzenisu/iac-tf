@@ -29,7 +29,7 @@ resource "azurerm_role_assignment" "function_key_vault" {
 }
 
 resource "azurerm_role_assignment" "terraform_key_vault" {
-  for_each = local.backend_apps
+  for_each = var.fullstack_apps
 
   scope                = azurerm_key_vault.this[each.key].id
   role_definition_name = "Key Vault Secrets Officer"
@@ -37,6 +37,8 @@ resource "azurerm_role_assignment" "terraform_key_vault" {
 }
 
 resource "time_sleep" "key_vault_rbac_propagation" {
+  for_each = var.fullstack_apps
+
   create_duration = "30s"
 
   triggers = {
