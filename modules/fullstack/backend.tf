@@ -121,14 +121,16 @@ resource "time_sleep" "backend_custom_domain_wait" {
   destroy_duration = "0s"
 
   depends_on = [
-    cloudflare_record.static_web_app,
+    cloudflare_record.function_app,
   ]
 }
 
-resource "azurerm_app_service_custom_hostname_binding" "example" {
+resource "azurerm_app_service_custom_hostname_binding" "this" {
+  for_each = local.backend_apps
+
   hostname            = "api.${each.value.custom_domain}.${var.zone_name}"
-  app_service_name    = azurerm_function_app_flex_consumption.this.name
-  resource_group_name = azurerm_function_app_flex_consumption.this.resource_group_name
+  app_service_name    = azurerm_function_app_flex_consumption.this[each.key].name
+  resource_group_name = azurerm_function_app_flex_consumption.this[each.key].resource_group_name
 
   depends_on = [
     cloudflare_record.function_app,
