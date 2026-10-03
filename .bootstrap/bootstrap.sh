@@ -4,6 +4,20 @@ set -euo pipefail
 BOOTSTRAP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$BOOTSTRAP_DIR/.." && pwd)"
 TFVARS_FILE="$BOOTSTRAP_DIR/terraform.tfvars"
+GITHUB_TOKEN_CACHE="${GITHUB_TOKEN:-}"
+GH_TOKEN_CACHE="${GH_TOKEN:-}"
+export GITHUB_TOKEN=""
+unset GH_TOKEN
+
+restore_github_tokens() {
+  export GITHUB_TOKEN="$GITHUB_TOKEN_CACHE"
+  if [[ -n "$GH_TOKEN_CACHE" ]]; then
+    export GH_TOKEN="$GH_TOKEN_CACHE"
+  else
+    unset GH_TOKEN
+  fi
+}
+trap restore_github_tokens EXIT
 
 require_command() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -52,7 +66,14 @@ REPOSITORY_SLUG="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 export TF_VAR_github_owner="${REPOSITORY_SLUG%%/*}"
 export TF_VAR_github_repository="${REPOSITORY_SLUG#*/}"
 export TF_VAR_github_repository_id="$(gh api "repos/$REPOSITORY_SLUG" --jq .id)"
-export GITHUB_TOKEN="$(gh auth token)"
 
+if ! gh api "repos/$REPOSITORY_SLUG/actions/secrets?per_page=1" >/dev/null; then
+  printf 'GitHub token cannot access repository Actions secrets. Grant it Actions read/write permission (fine-grained token) or repo scope (classic token), then retry.\n' >&2
+  exit 1
+fi
+
+export GITHUB_TOKEN="$(gh auth token)"
 terraform -chdir="$BOOTSTRAP_DIR" init
+GCP_PROJECT_ID="$(terraform -chdir="$BOOTSTRAP_DIR" console -var-file="$TFVARS_FILE" <<< 'var.gcp_project_id' | tr -d '"')"
+gcloud auth application-default set-quota-project "$GCP_PROJECT_ID"
 terraform -chdir="$BOOTSTRAP_DIR" apply -var-file="$TFVARS_FILE" "$@"
