@@ -1,15 +1,12 @@
 {
 	"image": "mcr.microsoft.com/devcontainers/universal:latest",
 	"features": {
-		"ghcr.io/devcontainers/features/terraform:1": {
-			"installTerraformDocs": true,
-			"version": "latest",
-			"tflint": "latest",
-			"terragrunt": "latest"
-		},
+		"ghcr.io/devcontainers/features/terraform:1": {},
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
-		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
+		"ghcr.io/dhoeric/features/google-cloud-cli:1": {},
+		"ghcr.io/devcontainers-extra/features/supabase-cli:1": {}
 	},
+	"postCreateCommand": "curl -sSfL https://raw.githubusercontent.com/auth0/auth0-cli/main/install.sh | sh -s -- -b /usr/local/bin",
 	"customizations": {
 		"vscode": {
 			"settings": {
