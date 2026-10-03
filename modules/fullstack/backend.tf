@@ -128,7 +128,7 @@ resource "time_sleep" "backend_custom_domain_wait" {
 resource "azurerm_app_service_custom_hostname_binding" "example" {
   hostname            = "api.${each.value.custom_domain}.${var.zone_name}"
   app_service_name    = azurerm_function_app_flex_consumption.this.name
-  resource_group_name = azurerm_function_app_flex_consumption.resource_group_name
+  resource_group_name = azurerm_function_app_flex_consumption.this.resource_group_name
 
   depends_on = [
     cloudflare_record.function_app,
