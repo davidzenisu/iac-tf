@@ -71,6 +71,6 @@ fullstack_apps = {
     location                 = "westeurope"
     github_subject_claim     = "repo:davidzenisu@32648667/game-drawing-duel@1361817871"
     custom_domain            = "drawing"
-    supabase_organization_id = "davidzenisu_htvllqfeppqjdwgdbkuj"
+    supabase_organization_id = "htvllqfeppqjdwgdbkuj" #Slug only
   }
 }
