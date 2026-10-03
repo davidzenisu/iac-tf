@@ -79,3 +79,27 @@ variable "cloudflare_api_token" {
     error_message = "Set cloudflare_api_token in .bootstrap/terraform.tfvars."
   }
 }
+
+variable "supabase_access_token" {
+  description = "Supabase personal access token made available to the main Terraform workflow."
+  type        = string
+  sensitive   = true
+}
+
+variable "auth0_domain" {
+  description = "Auth0 tenant domain used by the main Terraform workflow."
+  type        = string
+  sensitive   = true
+}
+
+variable "auth0_client_id" {
+  description = "Auth0 machine-to-machine application client ID used by the main Terraform workflow."
+  type        = string
+  sensitive   = true
+}
+
+variable "auth0_client_secret" {
+  description = "Auth0 machine-to-machine application client secret used by the main Terraform workflow."
+  type        = string
+  sensitive   = true
+}

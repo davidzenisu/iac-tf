@@ -9,6 +9,10 @@ locals {
     GCP_WORKLOAD_PROVIDER  = google_iam_workload_identity_pool_provider.github.name
     GCP_PROJECT_ID         = var.gcp_project_id
     GCP_SERVICE_ACCOUNT_ID = google_service_account.github_actions.email
+    SUPABASE_ACCESS_TOKEN  = var.supabase_access_token
+    AUTH0_DOMAIN           = var.auth0_domain
+    AUTH0_CLIENT_ID        = var.auth0_client_id
+    AUTH0_CLIENT_SECRET    = var.auth0_client_secret
   }
 }
 
