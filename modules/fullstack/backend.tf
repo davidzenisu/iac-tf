@@ -10,6 +10,9 @@ resource "azurerm_storage_account" "this" {
   account_kind               = "StorageV2"
   min_tls_version            = "TLS1_2"
   https_traffic_only_enabled = true
+
+  allow_nested_items_to_be_public = false
+  local_user_enabled              = false
 }
 
 resource "azurerm_service_plan" "this" {
@@ -46,6 +49,20 @@ resource "azurerm_function_app_flex_consumption" "this" {
   resource_group_name = azurerm_resource_group.this[each.key].name
   service_plan_id     = azurerm_service_plan.this[each.key].id
 
+  https_only                                     = true
+  webdeploy_publish_basic_authentication_enabled = false
+
+  app_settings = contains(keys(local.database_apps), each.key) ? {
+    SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[each.key].versionless_id})"
+  } : {}
+
+  identity {
+    type = "UserAssigned"
+    identity_ids = [
+      azurerm_user_assigned_identity.function[each.key].id,
+    ]
+  }
+
   storage_container_type            = "blobContainer"
   storage_container_endpoint        = "${azurerm_storage_account.this[each.key].primary_blob_endpoint}${azurerm_storage_container.this[each.key].name}"
   storage_authentication_type       = "UserAssignedIdentity"
@@ -63,6 +80,20 @@ resource "azurerm_function_app_flex_consumption" "this" {
     azurerm_role_assignment.function_storage,
     azurerm_role_assignment.function_key_vault,
   ]
+}
+
+# https://github.com/hashicorp/terraform-provider-azurerm/issues/28928
+resource "azapi_update_resource" "function_key_vault_reference_identity" {
+  for_each = local.backend_apps
+
+  type        = "Microsoft.Web/sites@2024-04-01"
+  resource_id = azurerm_function_app_flex_consumption.this[each.key].id
+
+  body = {
+    properties = {
+      keyVaultReferenceIdentity = azurerm_user_assigned_identity.function[each.key].id
+    }
+  }
 }
 
 resource "azurerm_role_assignment" "github_function" {
