@@ -14,18 +14,3 @@ module "fullstack" {
     time       = time
   }
 }
-
-output "fullstack_github_credentials" {
-  description = "Client IDs and tenant/subscription identifiers for GitHub Actions OIDC login. No client secret is created."
-  value       = module.fullstack.github_credentials
-}
-
-output "fullstack_auth0_client_ids" {
-  description = "Client IDs for the fullstack Auth0 applications."
-  value       = module.fullstack.auth0_client_ids
-}
-
-output "fullstack_supabase_project_ids" {
-  description = "Project references for the fullstack Supabase projects."
-  value       = module.fullstack.supabase_project_ids
-}
