@@ -19,4 +19,6 @@ resource "azurerm_key_vault_secret" "supabase_db_password" {
   name         = "supabase-db-password"
   value        = random_password.this[each.key].result
   key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
 }

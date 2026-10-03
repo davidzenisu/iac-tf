@@ -27,3 +27,19 @@ resource "azurerm_role_assignment" "function_key_vault" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.function[each.key].principal_id
 }
+
+resource "azurerm_role_assignment" "terraform_key_vault" {
+  for_each = local.backend_apps
+
+  scope                = azurerm_key_vault.this[each.key].id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
+resource "time_sleep" "key_vault_rbac_propagation" {
+  create_duration = "30s"
+
+  triggers = {
+    role_assignment_id = azurerm_role_assignment.terraform_key_vault[each.key].id
+  }
+}
