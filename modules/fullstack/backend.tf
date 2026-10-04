@@ -138,17 +138,43 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
   ]
 }
 
-resource "azurerm_app_service_managed_certificate" "this" {
+# https://github.com/hashicorp/terraform-provider-azurerm/issues/31884
+resource "azapi_resource" "backend_managed_cert" {
   for_each = local.backend_apps
 
-  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+  type      = "Microsoft.Web/sites/certificates@2025-03-01"
+  name      = "${azurerm_function_app_flex_consumption.this[each.key].name}-cert"
+  parent_id = azurerm_function_app_flex_consumption.this[each.key].id
+  location  = azurerm_function_app_flex_consumption.this[each.key].location
+  body = {
+    properties = {
+      canonicalName          = "api.${each.value.custom_domain}.${var.zone_name}"
+      domainValidationMethod = "CNAME"
+      hostNames = [
+        "api.${each.value.custom_domain}.${var.zone_name}"
+      ]
+    }
+  }
+
+  depends_on = [
+    azurerm_app_service_custom_hostname_binding.this,
+  ]
 }
 
-resource "azurerm_app_service_certificate_binding" "app" {
+resource "azapi_update_resource" "backend_https_binding" {
   for_each = local.backend_apps
 
-  hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
-  certificate_id      = azurerm_app_service_managed_certificate.this[each.key].id
+  type        = "Microsoft.Web/sites/hostNameBindings@2025-03-01"
+  resource_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
 
-  ssl_state = "SniEnabled"
+  body = {
+    properties = {
+      sslState   = "SniEnabled"
+      thumbprint = azapi_resource.backend_managed_cert[each.key].output.properties.thumbprint
+    }
+  }
+
+  depends_on = [
+    azapi_resource.backend_managed_cert,
+  ]
 }
