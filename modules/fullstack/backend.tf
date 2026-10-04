@@ -156,5 +156,5 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
   resource_group_name = azurerm_function_app_flex_consumption.this[each.key].resource_group_name
 
   ssl_state  = "SniEnabled"
-  thumbprint = azapi_resource.backend_managed_cert[each.key].body.properties.thumbprint
+  thumbprint = azapi_resource.backend_managed_cert[each.key].output.properties.thumbprint
 }
