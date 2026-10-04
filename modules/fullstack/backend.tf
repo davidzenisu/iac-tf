@@ -138,7 +138,7 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
   ]
 }
 
-resource "azapi_resource" "this" {
+resource "azapi_resource" "backend_managed_cert" {
   for_each = local.backend_apps
 
   type      = "Microsoft.Web/sites/certificates@2025-03-01"
@@ -156,17 +156,16 @@ resource "azapi_resource" "this" {
   }
 }
 
-#resource "azurerm_app_service_managed_certificate" "this" {
-#  for_each = local.backend_apps
-#
-#  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
-#}
+moved {
+  from = azapi_resource.this
+  to   = azapi_resource.backend_managed_cert
+}
 
-#resource "azurerm_app_service_certificate_binding" "app" {
-#  for_each = local.backend_apps
-#
-#  hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
-#  certificate_id      = azurerm_app_service_managed_certificate.this[each.key].id
-#
-#  ssl_state = "SniEnabled"
-#}
+resource "azurerm_app_service_certificate_binding" "app" {
+  for_each = local.backend_apps
+
+  hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+  certificate_id      = azapi_resource.backend_managed_cert[each.key].id
+
+  ssl_state = "SniEnabled"
+}
