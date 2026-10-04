@@ -125,6 +125,20 @@ resource "time_sleep" "backend_custom_domain_wait" {
   ]
 }
 
+resource "azurerm_app_service_custom_hostname_binding" "this" {
+  for_each = local.backend_apps
+
+  hostname            = "api.${each.value.custom_domain}.${var.zone_name}"
+  app_service_name    = azurerm_function_app_flex_consumption.this[each.key].name
+  resource_group_name = azurerm_function_app_flex_consumption.this[each.key].resource_group_name
+
+  depends_on = [
+    cloudflare_record.function_app,
+    time_sleep.backend_custom_domain_wait,
+  ]
+}
+
+
 resource "azapi_resource" "backend_managed_cert" {
   for_each = local.backend_apps
 
@@ -143,18 +157,24 @@ resource "azapi_resource" "backend_managed_cert" {
   }
 
   depends_on = [
-    cloudflare_record.function_app,
-    time_sleep.backend_custom_domain_wait,
+    azurerm_app_service_custom_hostname_binding.this,
   ]
 }
 
-resource "azurerm_app_service_custom_hostname_binding" "this" {
+resource "azapi_update_resource" "backend_https_binding" {
   for_each = local.backend_apps
 
-  hostname            = "api.${each.value.custom_domain}.${var.zone_name}"
-  app_service_name    = azurerm_function_app_flex_consumption.this[each.key].name
-  resource_group_name = azurerm_function_app_flex_consumption.this[each.key].resource_group_name
+  type        = "Microsoft.Web/sites/hostNameBindings@2025-03-01"
+  resource_id = azapi_resource.backend_hostname_binding[each.key].id
 
-  ssl_state  = "SniEnabled"
-  thumbprint = azapi_resource.backend_managed_cert[each.key].output.properties.thumbprint
+  body = {
+    properties = {
+      sslState   = "SniEnabled"
+      thumbprint = azapi_resource.backend_managed_cert[each.key].output.properties.thumbprint
+    }
+  }
+
+  depends_on = [
+    azapi_resource.backend_managed_cert,
+  ]
 }
