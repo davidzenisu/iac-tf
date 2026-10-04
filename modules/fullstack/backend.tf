@@ -138,7 +138,7 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
   ]
 }
 
-
+# https://github.com/hashicorp/terraform-provider-azurerm/issues/31884
 resource "azapi_resource" "backend_managed_cert" {
   for_each = local.backend_apps
 
