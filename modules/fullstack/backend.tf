@@ -125,6 +125,10 @@ resource "time_sleep" "backend_custom_domain_wait" {
   ]
 }
 
+resource "azurerm_app_service_managed_certificate" "app" {
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.app.id
+}
+
 resource "azurerm_app_service_custom_hostname_binding" "this" {
   for_each = local.backend_apps
 
@@ -136,4 +140,19 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
     cloudflare_record.function_app,
     time_sleep.backend_custom_domain_wait,
   ]
+}
+
+resource "azurerm_app_service_managed_certificate" "this" {
+  for_each = local.backend_apps
+
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+}
+
+resource "azurerm_app_service_certificate_binding" "app" {
+  for_each = local.backend_apps
+
+  hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+  certificate_id      = azurerm_app_service_managed_certificate.this[each.key].id
+
+  ssl_state = "SniEnabled"
 }
