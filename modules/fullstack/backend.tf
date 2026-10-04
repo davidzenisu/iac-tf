@@ -165,7 +165,7 @@ resource "azapi_update_resource" "backend_https_binding" {
   for_each = local.backend_apps
 
   type        = "Microsoft.Web/sites/hostNameBindings@2025-03-01"
-  resource_id = azapi_resource.backend_hostname_binding[each.key].id
+  resource_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
 
   body = {
     properties = {
