@@ -45,3 +45,82 @@ resource "time_sleep" "key_vault_rbac_propagation" {
     role_assignment_id = azurerm_role_assignment.terraform_key_vault[each.key].id
   }
 }
+
+resource "azurerm_key_vault_secret" "resource_group_name" {
+  for_each = var.fullstack_apps
+
+  name         = "resource-group-name"
+  value        = azurerm_resource_group.this[each.key].name
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "swa_name" {
+  for_each = local.frontend_apps
+
+  name         = "swa-name"
+  value        = azurerm_static_web_app.this[each.key].name
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "function_app_name" {
+  for_each = local.backend_apps
+
+  name         = "function-app-name"
+  value        = azurerm_function_app_flex_consumption.this[each.key].name
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "storage_account_name" {
+  for_each = local.backend_apps
+
+  name         = "storage-account-name"
+  value        = azurerm_storage_account.this[each.key].name
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "supabase_db_password" {
+  for_each     = local.database_apps
+  name         = "supabase-db-password"
+  value        = random_password.this[each.key].result
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "supabase_database_url" {
+  for_each = local.database_apps
+
+  name         = "supabase-database-url"
+  value        = "https://${supabase_project.this[each.key].id}.supabase.co"
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "frontend_custom_domain" {
+  for_each = local.custom_domain_apps
+
+  name         = "frontend-custom-domain"
+  value        = "${each.value.custom_domain}.${var.zone_name}"
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "api_custom_domain" {
+  for_each = local.api_custom_domain_apps
+
+  name         = "api-custom-domain"
+  value        = "api.${each.value.custom_domain}.${var.zone_name}"
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
