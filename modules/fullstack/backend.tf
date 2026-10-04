@@ -108,8 +108,8 @@ resource "cloudflare_record" "function_app" {
   for_each = local.backend_apps
 
   zone_id = var.zone_id
-  name    = each.value.custom_domain
-  content = "api.${azurerm_function_app_flex_consumption.this[each.key].default_hostname}"
+  name    = "api.${each.value.custom_domain}"
+  content = azurerm_function_app_flex_consumption.this[each.key].default_hostname
   type    = "CNAME"
   proxied = false
 }
