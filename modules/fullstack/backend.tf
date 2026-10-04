@@ -138,17 +138,35 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
   ]
 }
 
-resource "azurerm_app_service_managed_certificate" "this" {
+resource "azapi_resource" "this" {
   for_each = local.backend_apps
 
-  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+  type      = "Microsoft.Web/sites/certificates@2025-03-01"
+  name      = "${azurerm_function_app_flex_consumption.this[each.key].name}-cert"
+  parent_id = azurerm_function_app_flex_consumption.this[each.key].id
+  location  = azurerm_function_app_flex_consumption.this[each.key].location
+  body = {
+    properties = {
+      canonicalName          = "api.${each.value.custom_domain}.${var.zone_name}"
+      domainValidationMethod = "CNAME"
+      hostNames = [
+        "api.${each.value.custom_domain}.${var.zone_name}"
+      ]
+    }
+  }
 }
 
-resource "azurerm_app_service_certificate_binding" "app" {
-  for_each = local.backend_apps
+#resource "azurerm_app_service_managed_certificate" "this" {
+#  for_each = local.backend_apps
+#
+#  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+#}
 
-  hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
-  certificate_id      = azurerm_app_service_managed_certificate.this[each.key].id
-
-  ssl_state = "SniEnabled"
-}
+#resource "azurerm_app_service_certificate_binding" "app" {
+#  for_each = local.backend_apps
+#
+#  hostname_binding_id = azurerm_app_service_custom_hostname_binding.this[each.key].id
+#  certificate_id      = azurerm_app_service_managed_certificate.this[each.key].id
+#
+#  ssl_state = "SniEnabled"
+#}
