@@ -52,6 +52,8 @@ variable "fullstack_apps" {
     project_name             = string
     location                 = string
     github_subject_claim     = string
+    function_runtime_name    = optional(string)
+    function_runtime_version = optional(string)
     custom_domain            = optional(string)
     frontend                 = optional(bool, true)
     backend                  = optional(bool, true)
@@ -86,6 +88,18 @@ variable "fullstack_apps" {
       (!app.database || app.supabase_organization_id != null)
     ])
     error_message = "Storage requires backend=true, auth requires frontend=true, and database=true requires supabase_organization_id."
+  }
+
+  validation {
+    condition = alltrue([
+      for app in values(var.fullstack_apps) :
+      !app.backend || try(
+        length(trimspace(app.function_runtime_name)) > 0 &&
+        length(trimspace(app.function_runtime_version)) > 0,
+        false
+      )
+    ])
+    error_message = "Each fullstack app with backend=true must provide a non-empty function_runtime_name and function_runtime_version."
   }
 
   validation {

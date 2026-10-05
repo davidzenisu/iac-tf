@@ -4,6 +4,8 @@ variable "fullstack_apps" {
     project_name             = string
     location                 = string
     github_subject_claim     = string
+    function_runtime_name    = optional(string)
+    function_runtime_version = optional(string)
     custom_domain            = optional(string)
     frontend                 = optional(bool, true)
     backend                  = optional(bool, true)
@@ -26,3 +28,4 @@ variable "zone_id" {
   type        = string
   default     = null
 }
+

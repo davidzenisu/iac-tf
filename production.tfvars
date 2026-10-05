@@ -70,6 +70,8 @@ fullstack_apps = {
     project_name             = "drawing-duel"
     location                 = "westeurope"
     github_subject_claim     = "repo:davidzenisu@32648667/game-drawing-duel@1361817871"
+    function_runtime_name    = "python"
+    function_runtime_version = "3.14"
     custom_domain            = "drawing"
     supabase_organization_id = "htvllqfeppqjdwgdbkuj" #Slug only
   }

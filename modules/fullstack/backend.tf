@@ -68,8 +68,8 @@ resource "azurerm_function_app_flex_consumption" "this" {
   storage_authentication_type       = "UserAssignedIdentity"
   storage_user_assigned_identity_id = azurerm_user_assigned_identity.function[each.key].id
 
-  runtime_name    = "node"
-  runtime_version = "20"
+  runtime_name    = each.value.function_runtime_name
+  runtime_version = each.value.function_runtime_version
 
   maximum_instance_count = 50
   instance_memory_in_mb  = 2048
