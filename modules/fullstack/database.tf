@@ -1,4 +1,4 @@
-ephemeral "random_password" "this" {
+resource "random_password" "this" {
   for_each = local.database_apps
 
   length  = 16
@@ -10,7 +10,7 @@ resource "supabase_project" "this" {
 
   organization_id   = each.value.supabase_organization_id
   name              = each.value.project_name
-  database_password = ephemeral.random_password.this[each.key].result
+  database_password = random_password.this[each.key].result
   region            = each.value.supabase_region
 }
 
