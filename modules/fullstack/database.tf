@@ -1,8 +1,8 @@
 resource "random_password" "this" {
   for_each = local.database_apps
 
-  length  = 32
-  special = true
+  length  = 16
+  special = false
 }
 
 resource "supabase_project" "this" {
