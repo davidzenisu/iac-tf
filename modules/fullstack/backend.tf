@@ -54,6 +54,11 @@ resource "azurerm_function_app_flex_consumption" "this" {
 
   app_settings = contains(keys(local.database_apps), each.key) ? {
     SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[each.key].versionless_id})"
+
+    # Until https://github.com/hashicorp/terraform-provider-azurerm/issues/29693 is resolved
+    AzureWebJobsStorage__credential  = "managedidentity"
+    AzureWebJobsStorage__clientId    = azurerm_user_assigned_identity.function[each.key].client_id
+    AzureWebJobsStorage__accountname = azurerm_storage_account.this[each.key].name
   } : {}
 
   identity {
