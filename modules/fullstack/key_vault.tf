@@ -88,18 +88,18 @@ resource "azurerm_key_vault_secret" "storage_account_name" {
 
 resource "azurerm_key_vault_secret" "supabase_db_password" {
   for_each     = local.database_apps
-  name         = "supabase-db-password"
+  name         = "database-password"
   value        = random_password.this[each.key].result
   key_vault_id = azurerm_key_vault.this[each.key].id
 
   depends_on = [time_sleep.key_vault_rbac_propagation]
 }
 
-resource "azurerm_key_vault_secret" "supabase_database_url" {
+resource "azurerm_key_vault_secret" "database_url" {
   for_each = local.database_apps
 
-  name         = "supabase-database-url"
-  value        = "https://${supabase_project.this[each.key].id}.supabase.co"
+  name         = "database-url"
+  value        = replace(data.supabase_pooler.this[each.key].url["transaction"], "[YOUR-PASSWORD]", random_password.this[each.key].result)
   key_vault_id = azurerm_key_vault.this[each.key].id
 
   depends_on = [time_sleep.key_vault_rbac_propagation]

@@ -14,3 +14,9 @@ resource "supabase_project" "this" {
   region            = each.value.supabase_region
 }
 
+data "supabase_pooler" "this" {
+  for_each = local.database_apps
+
+  project_ref = supabase_project.this[each.key].id
+}
+
