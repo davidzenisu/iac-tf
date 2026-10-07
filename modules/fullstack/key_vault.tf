@@ -119,7 +119,7 @@ resource "azurerm_key_vault_secret" "api_custom_domain" {
   for_each = local.api_custom_domain_apps
 
   name         = "api-custom-domain"
-  value        = "https://${each.value.custom_domain}.${var.zone_name}"
+  value        = "https://api.${each.value.custom_domain}.${var.zone_name}"
   key_vault_id = azurerm_key_vault.this[each.key].id
 
   depends_on = [time_sleep.key_vault_rbac_propagation]
