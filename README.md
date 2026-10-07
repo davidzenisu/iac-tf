@@ -49,7 +49,7 @@ terraform plan -var='dns_records={test={name="test",content="test",type="TXT"}}'
 Fullstack projects are configured through `fullstack_apps` and the local module in [`modules/fullstack/`](./modules/fullstack). The module is split by stack (`identity`, `key_vault`, `frontend`, `backend`, `storage`, `database`, and `auth`). Resource names are derived from each `project_name`; the map key is an arbitrary Terraform instance key. The GitHub Actions identity and its `main`/pull-request OIDC credentials are always created. All five feature switches default to `true`:
 
 - `frontend` creates a Static Web App, its optional custom domain, and a Key Vault. The Key Vault is also created when `backend = true` so the Function App can access secrets.
-- `backend` creates a Linux Function App, its user-assigned identity, and a Storage Account.
+- `backend` creates a Linux Function App, its user-assigned identity, and a Storage Account. When the frontend and its custom domain are configured, the Function App receives `FRONTEND_URL` set to that HTTPS URL.
 - `storage` creates a private data container in that account (requires `backend = true`).
 - `database` creates a Supabase project with a Terraform-generated database password.
 - `auth` creates an Auth0 SPA client with callback/origin URLs for the frontend (requires `frontend = true`).

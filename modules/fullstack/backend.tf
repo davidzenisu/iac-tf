@@ -52,15 +52,20 @@ resource "azurerm_function_app_flex_consumption" "this" {
   https_only                                     = true
   webdeploy_publish_basic_authentication_enabled = false
 
-  app_settings = contains(keys(local.database_apps), each.key) ? {
-    SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[each.key].versionless_id})"
-    DATABASE_URL         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.database_url[each.key].versionless_id})"
+  app_settings = merge(
+    contains(keys(local.database_apps), each.key) ? {
+      SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[each.key].versionless_id})"
+      DATABASE_URL         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.database_url[each.key].versionless_id})"
 
-    # Until https://github.com/hashicorp/terraform-provider-azurerm/issues/29693 is resolved
-    AzureWebJobsStorage__credential  = "managedidentity"
-    AzureWebJobsStorage__clientId    = azurerm_user_assigned_identity.function[each.key].client_id
-    AzureWebJobsStorage__accountname = azurerm_storage_account.this[each.key].name
-  } : {}
+      # Until https://github.com/hashicorp/terraform-provider-azurerm/issues/29693 is resolved
+      AzureWebJobsStorage__credential  = "managedidentity"
+      AzureWebJobsStorage__clientId    = azurerm_user_assigned_identity.function[each.key].client_id
+      AzureWebJobsStorage__accountname = azurerm_storage_account.this[each.key].name
+    } : {},
+    contains(keys(local.custom_domain_apps), each.key) ? {
+      FRONTEND_URL = "https://${each.value.custom_domain}.${var.zone_name}"
+    } : {},
+  )
 
   identity {
     type = "UserAssigned"
