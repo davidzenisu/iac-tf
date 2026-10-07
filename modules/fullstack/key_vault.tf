@@ -105,6 +105,26 @@ resource "azurerm_key_vault_secret" "database_url" {
   depends_on = [time_sleep.key_vault_rbac_propagation]
 }
 
+resource "azurerm_key_vault_secret" "frontend_custom_domain" {
+  for_each = local.custom_domain_apps
+
+  name         = "frontend-custom-domain"
+  value        = "https://${each.value.custom_domain}.${var.zone_name}"
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "api_custom_domain" {
+  for_each = local.api_custom_domain_apps
+
+  name         = "api-custom-domain"
+  value        = "https://${each.value.custom_domain}.${var.zone_name}"
+  key_vault_id = azurerm_key_vault.this[each.key].id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
 resource "azurerm_key_vault_secret" "auth0_domain" {
   for_each = local.auth_apps
 
