@@ -1,34 +1,26 @@
 resource "azurerm_resource_group" "this" {
-  for_each = var.fullstack_apps
-
-  name     = "rg-${each.value.project_name}"
-  location = each.value.location
+  name     = "rg-${var.fullstack_app.project_name}"
+  location = var.fullstack_app.location
 }
 
 resource "azurerm_user_assigned_identity" "github" {
-  for_each = var.fullstack_apps
-
-  name                = "id-${each.value.project_name}-github"
-  location            = azurerm_resource_group.this[each.key].location
-  resource_group_name = azurerm_resource_group.this[each.key].name
+  name                = "id-${var.fullstack_app.project_name}-github"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
 }
 
 resource "azurerm_federated_identity_credential" "github_main" {
-  for_each = var.fullstack_apps
-
   name                      = "gh-branch-main"
   audience                  = ["api://AzureADTokenExchange"]
   issuer                    = "https://token.actions.githubusercontent.com"
-  user_assigned_identity_id = azurerm_user_assigned_identity.github[each.key].id
-  subject                   = "${each.value.github_subject_claim}:ref:refs/heads/main"
+  user_assigned_identity_id = azurerm_user_assigned_identity.github.id
+  subject                   = "${var.fullstack_app.github_subject_claim}:ref:refs/heads/main"
 }
 
 resource "azurerm_federated_identity_credential" "github_pull_request" {
-  for_each = var.fullstack_apps
-
   name                      = "gh-pullrequest"
   audience                  = ["api://AzureADTokenExchange"]
   issuer                    = "https://token.actions.githubusercontent.com"
-  user_assigned_identity_id = azurerm_user_assigned_identity.github[each.key].id
-  subject                   = "${each.value.github_subject_claim}:pull_request"
+  user_assigned_identity_id = azurerm_user_assigned_identity.github.id
+  subject                   = "${var.fullstack_app.github_subject_claim}:pull_request"
 }

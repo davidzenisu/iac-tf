@@ -1,9 +1,9 @@
 resource "azurerm_static_web_app" "this" {
-  for_each = local.frontend_apps
+  count = var.fullstack_app.frontend ? 1 : 0
 
-  name                = "swa-${each.value.project_name}-${local.suffixes[each.key]}"
-  location            = azurerm_resource_group.this[each.key].location
-  resource_group_name = azurerm_resource_group.this[each.key].name
+  name                = "swa-${var.fullstack_app.project_name}-${local.suffix}"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   sku_tier            = "Free"
   sku_size            = "Free"
 
@@ -17,25 +17,25 @@ resource "azurerm_static_web_app" "this" {
 }
 
 resource "azurerm_role_assignment" "github_static_web_app" {
-  for_each = local.frontend_apps
+  count = var.fullstack_app.frontend ? 1 : 0
 
-  scope                = azurerm_static_web_app.this[each.key].id
+  scope                = azurerm_static_web_app.this[0].id
   role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.github[each.key].principal_id
+  principal_id         = azurerm_user_assigned_identity.github.principal_id
 }
 
 resource "cloudflare_record" "static_web_app" {
-  for_each = local.custom_domain_apps
+  count = var.fullstack_app.frontend && local.has_custom_domain ? 1 : 0
 
   zone_id = var.zone_id
-  name    = each.value.custom_domain
-  content = azurerm_static_web_app.this[each.key].default_host_name
+  name    = var.fullstack_app.custom_domain
+  content = azurerm_static_web_app.this[0].default_host_name
   type    = "CNAME"
   proxied = false
 }
 
 resource "time_sleep" "custom_domain_wait" {
-  for_each = local.custom_domain_apps
+  count = var.fullstack_app.frontend && local.has_custom_domain ? 1 : 0
 
   create_duration  = "300s"
   destroy_duration = "0s"
@@ -46,10 +46,10 @@ resource "time_sleep" "custom_domain_wait" {
 }
 
 resource "azurerm_static_web_app_custom_domain" "this" {
-  for_each = local.custom_domain_apps
+  count = var.fullstack_app.frontend && local.has_custom_domain ? 1 : 0
 
-  static_web_app_id = azurerm_static_web_app.this[each.key].id
-  domain_name       = "${each.value.custom_domain}.${var.zone_name}"
+  static_web_app_id = azurerm_static_web_app.this[0].id
+  domain_name       = "${var.fullstack_app.custom_domain}.${var.zone_name}"
   validation_type   = "cname-delegation"
 
   depends_on = [
