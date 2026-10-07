@@ -1,3 +1,5 @@
+data "auth0_tenant" "this" {}
+
 resource "auth0_client" "this" {
   for_each = local.auth_apps
 
