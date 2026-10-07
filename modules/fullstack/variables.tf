@@ -1,6 +1,6 @@
-variable "fullstack_apps" {
-  description = "Fullstack projects and the cloud resources enabled for each project."
-  type = map(object({
+variable "fullstack_app" {
+  description = "A fullstack project and the cloud resources enabled for it."
+  type = object({
     project_name             = string
     location                 = string
     github_subject_claim     = string
@@ -14,7 +14,7 @@ variable "fullstack_apps" {
     auth                     = optional(bool, true)
     supabase_organization_id = optional(string)
     supabase_region          = optional(string, "eu-west-1")
-  }))
+  })
 }
 
 variable "zone_name" {

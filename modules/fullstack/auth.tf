@@ -1,33 +1,33 @@
 data "auth0_tenant" "this" {}
 
 resource "auth0_client" "this" {
-  for_each = local.auth_apps
+  count = var.fullstack_app.auth ? 1 : 0
 
-  name     = "spa-${each.value.project_name}"
+  name     = "spa-${var.fullstack_app.project_name}"
   app_type = "spa"
 
   callbacks = [
-    each.value.custom_domain != null
-    ? "https://${each.value.custom_domain}.${var.zone_name}"
-    : "https://${azurerm_static_web_app.this[each.key].default_host_name}",
+    local.has_custom_domain
+    ? "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
+    : "https://${azurerm_static_web_app.this[0].default_host_name}",
     "https://*.app.github.dev" # GitHub codespace debugging
   ]
   allowed_logout_urls = [
-    each.value.custom_domain != null
-    ? "https://${each.value.custom_domain}.${var.zone_name}"
-    : "https://${azurerm_static_web_app.this[each.key].default_host_name}",
+    local.has_custom_domain
+    ? "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
+    : "https://${azurerm_static_web_app.this[0].default_host_name}",
     "https://*.app.github.dev" # GitHub codespace debugging
   ]
   allowed_origins = [
-    each.value.custom_domain != null
-    ? "https://${each.value.custom_domain}.${var.zone_name}"
-    : "https://${azurerm_static_web_app.this[each.key].default_host_name}",
+    local.has_custom_domain
+    ? "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
+    : "https://${azurerm_static_web_app.this[0].default_host_name}",
     "https://*.app.github.dev" # GitHub codespace debugging
   ]
   web_origins = [
-    each.value.custom_domain != null
-    ? "https://${each.value.custom_domain}.${var.zone_name}"
-    : "https://${azurerm_static_web_app.this[each.key].default_host_name}",
+    local.has_custom_domain
+    ? "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
+    : "https://${azurerm_static_web_app.this[0].default_host_name}",
     "https://*.app.github.dev" # GitHub codespace debugging
   ]
 

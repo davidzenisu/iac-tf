@@ -1,7 +1,7 @@
 resource "azurerm_storage_container" "this" {
-  for_each = local.storage_apps
+  count = var.fullstack_app.storage ? 1 : 0
 
-  name                  = "data-${each.value.project_name}"
-  storage_account_id    = azurerm_storage_account.this[each.key].id
+  name                  = "data-${var.fullstack_app.project_name}"
+  storage_account_id    = azurerm_storage_account.this[0].id
   container_access_type = "private"
 }
