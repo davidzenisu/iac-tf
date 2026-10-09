@@ -48,11 +48,7 @@ resource "auth0_action" "assign_user_role" {
   runtime = "node22"
   deploy  = true
   code    = <<-JAVASCRIPT
-    exports.onExecutePostLogin = async (event, api) => {
-      if (event.stats.logins_count !== 1) {
-        return;
-      }
-
+    exports.onExecutePostUserRegistration = async (event, api) => {
       const ManagementClient = require('auth0').ManagementClient;
 
       const management = new ManagementClient({
