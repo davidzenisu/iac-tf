@@ -17,6 +17,17 @@ variable "fullstack_app" {
   })
 }
 
+variable "auth0_user_role_id" {
+  description = "Tenant-wide Auth0 role ID assigned to new users and authorized for this app's API."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = !var.fullstack_app.auth || var.auth0_user_role_id != null
+    error_message = "auth0_user_role_id must be provided when auth is enabled."
+  }
+}
+
 variable "zone_name" {
   description = "DNS zone suffix for custom frontend domains."
   type        = string

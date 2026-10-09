@@ -134,3 +134,13 @@ resource "azurerm_key_vault_secret" "auth0_client_id" {
 
   depends_on = [time_sleep.key_vault_rbac_propagation]
 }
+
+resource "azurerm_key_vault_secret" "auth0_api_audience" {
+  count = var.fullstack_app.auth && var.fullstack_app.backend ? 1 : 0
+
+  name         = "auth0-api-audience"
+  value        = local.api_audience
+  key_vault_id = azurerm_key_vault.this.id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}

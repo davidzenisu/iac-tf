@@ -12,6 +12,11 @@ output "auth0_client_id" {
   value       = try(auth0_client.this[0].client_id, null)
 }
 
+output "auth0_api_audience" {
+  description = "Audience that frontend clients must request when obtaining an access token for this API."
+  value       = try(auth0_resource_server.this[0].identifier, null)
+}
+
 output "supabase_project_id" {
   description = "Project reference for the Supabase project, if enabled."
   value       = try(supabase_project.this[0].id, null)
