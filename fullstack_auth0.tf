@@ -76,7 +76,7 @@ resource "auth0_action" "assign_user_role" {
 
   supported_triggers {
     id      = "post-login"
-    version = "v2"
+    version = "v3"
   }
 
   secrets {
