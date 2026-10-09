@@ -53,6 +53,12 @@ resource "azurerm_function_app_flex_consumption" "this" {
   webdeploy_publish_basic_authentication_enabled = false
 
   app_settings = merge(
+    {
+      FUNCTION_APP_CLIENT_ID = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.function_app_client_id[0].versionless_id})"
+    },
+    var.fullstack_app.storage ? {
+      STORAGE_CONTAINER_NAME = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.storage_container_name[0].versionless_id})"
+    } : {},
     var.fullstack_app.database ? {
       SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[0].versionless_id})"
       DATABASE_URL         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.database_url[0].versionless_id})"
