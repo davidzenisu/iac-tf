@@ -41,6 +41,24 @@ resource "azurerm_role_assignment" "function_storage" {
   principal_id         = azurerm_user_assigned_identity.function[0].principal_id
 }
 
+# Identity for application code, kept separate from the host identity above so
+# the app can only access the data container and not the host's containers.
+resource "azurerm_user_assigned_identity" "app" {
+  count = var.fullstack_app.backend ? 1 : 0
+
+  name                = "id-${var.fullstack_app.project_name}-app"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+}
+
+resource "azurerm_role_assignment" "app_storage_container" {
+  count = var.fullstack_app.backend && var.fullstack_app.storage ? 1 : 0
+
+  scope                = azurerm_storage_container.this[0].id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_user_assigned_identity.app[0].principal_id
+}
+
 resource "azurerm_function_app_flex_consumption" "this" {
   count = var.fullstack_app.backend ? 1 : 0
 
@@ -84,11 +102,12 @@ resource "azurerm_function_app_flex_consumption" "this" {
     type = "UserAssigned"
     identity_ids = [
       azurerm_user_assigned_identity.function[0].id,
+      azurerm_user_assigned_identity.app[0].id,
     ]
   }
 
   storage_container_type            = "blobContainer"
-  storage_container_endpoint        = "${azurerm_storage_account.this[0].primary_blob_endpoint}${local.function_deployment_container_name}"
+  storage_container_endpoint        = "${azurerm_storage_account.this[0].primary_blob_endpoint}${azurerm_storage_container.deployment[0].name}"
   storage_authentication_type       = "UserAssignedIdentity"
   storage_user_assigned_identity_id = azurerm_user_assigned_identity.function[0].id
 
@@ -116,6 +135,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
   depends_on = [
     azurerm_role_assignment.function_storage,
     azurerm_role_assignment.function_key_vault,
+    azurerm_role_assignment.app_storage_container,
   ]
 }
 
