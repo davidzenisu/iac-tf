@@ -76,6 +76,26 @@ resource "azurerm_key_vault_secret" "storage_account_name" {
   depends_on = [time_sleep.key_vault_rbac_propagation]
 }
 
+resource "azurerm_key_vault_secret" "function_app_client_id" {
+  count = var.fullstack_app.backend ? 1 : 0
+
+  name         = "function-app-client-id"
+  value        = azurerm_user_assigned_identity.function[0].client_id
+  key_vault_id = azurerm_key_vault.this.id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
+resource "azurerm_key_vault_secret" "storage_container_name" {
+  count = var.fullstack_app.backend && var.fullstack_app.storage ? 1 : 0
+
+  name         = "storage-container-name"
+  value        = azurerm_storage_container.this[0].name
+  key_vault_id = azurerm_key_vault.this.id
+
+  depends_on = [time_sleep.key_vault_rbac_propagation]
+}
+
 resource "azurerm_key_vault_secret" "supabase_db_password" {
   count        = var.fullstack_app.database ? 1 : 0
   name         = "database-password"

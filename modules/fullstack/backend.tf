@@ -53,14 +53,20 @@ resource "azurerm_function_app_flex_consumption" "this" {
   webdeploy_publish_basic_authentication_enabled = false
 
   app_settings = merge(
-    var.fullstack_app.database ? {
-      SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[0].versionless_id})"
-      DATABASE_URL         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.database_url[0].versionless_id})"
+    {
+      FUNCTION_APP_CLIENT_ID = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.function_app_client_id[0].versionless_id})"
 
       # Until https://github.com/hashicorp/terraform-provider-azurerm/issues/29693 is resolved
       AzureWebJobsStorage__credential  = "managedidentity"
       AzureWebJobsStorage__clientId    = azurerm_user_assigned_identity.function[0].client_id
       AzureWebJobsStorage__accountname = azurerm_storage_account.this[0].name
+    },
+    var.fullstack_app.storage ? {
+      STORAGE_CONTAINER_NAME = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.storage_container_name[0].versionless_id})"
+    } : {},
+    var.fullstack_app.database ? {
+      SUPABASE_DB_PASSWORD = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.supabase_db_password[0].versionless_id})"
+      DATABASE_URL         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.database_url[0].versionless_id})"
     } : {},
     var.fullstack_app.frontend && local.has_custom_domain ? {
       FRONTEND_URL = "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
@@ -81,7 +87,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
   }
 
   storage_container_type            = "blobContainer"
-  storage_container_endpoint        = "${azurerm_storage_account.this[0].primary_blob_endpoint}${azurerm_storage_container.this[0].name}"
+  storage_container_endpoint        = "${azurerm_storage_account.this[0].primary_blob_endpoint}${local.function_deployment_container_name}"
   storage_authentication_type       = "UserAssignedIdentity"
   storage_user_assigned_identity_id = azurerm_user_assigned_identity.function[0].id
 
@@ -135,7 +141,7 @@ resource "azurerm_role_assignment" "github_function" {
 }
 
 resource "cloudflare_record" "function_app" {
-  count = var.fullstack_app.backend ? 1 : 0
+  count = var.fullstack_app.backend && local.has_custom_domain ? 1 : 0
 
   zone_id = var.zone_id
   name    = "api.${var.fullstack_app.custom_domain}"
@@ -145,7 +151,7 @@ resource "cloudflare_record" "function_app" {
 }
 
 resource "time_sleep" "backend_custom_domain_wait" {
-  count = var.fullstack_app.backend ? 1 : 0
+  count = var.fullstack_app.backend && local.has_custom_domain ? 1 : 0
 
   create_duration  = "300s"
   destroy_duration = "0s"
@@ -156,7 +162,7 @@ resource "time_sleep" "backend_custom_domain_wait" {
 }
 
 resource "azurerm_app_service_custom_hostname_binding" "this" {
-  count = var.fullstack_app.backend ? 1 : 0
+  count = var.fullstack_app.backend && local.has_custom_domain ? 1 : 0
 
   hostname            = "api.${var.fullstack_app.custom_domain}.${var.zone_name}"
   app_service_name    = azurerm_function_app_flex_consumption.this[0].name
@@ -170,7 +176,7 @@ resource "azurerm_app_service_custom_hostname_binding" "this" {
 
 # https://github.com/hashicorp/terraform-provider-azurerm/issues/31884
 resource "azapi_resource" "backend_managed_cert" {
-  count = var.fullstack_app.backend ? 1 : 0
+  count = var.fullstack_app.backend && local.has_custom_domain ? 1 : 0
 
   type      = "Microsoft.Web/sites/certificates@2025-03-01"
   name      = "${azurerm_function_app_flex_consumption.this[0].name}-cert"
@@ -192,7 +198,7 @@ resource "azapi_resource" "backend_managed_cert" {
 }
 
 resource "azapi_update_resource" "backend_https_binding" {
-  count = var.fullstack_app.backend ? 1 : 0
+  count = var.fullstack_app.backend && local.has_custom_domain ? 1 : 0
 
   type        = "Microsoft.Web/sites/hostNameBindings@2025-03-01"
   resource_id = azurerm_app_service_custom_hostname_binding.this[0].id
