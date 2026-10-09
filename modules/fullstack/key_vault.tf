@@ -80,7 +80,7 @@ resource "azurerm_key_vault_secret" "function_app_client_id" {
   count = var.fullstack_app.backend ? 1 : 0
 
   name         = "function-app-client-id"
-  value        = azurerm_user_assigned_identity.function[0].client_id
+  value        = azurerm_user_assigned_identity.app[0].client_id
   key_vault_id = azurerm_key_vault.this.id
 
   depends_on = [time_sleep.key_vault_rbac_propagation]
