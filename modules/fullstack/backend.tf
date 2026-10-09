@@ -91,7 +91,20 @@ resource "azurerm_function_app_flex_consumption" "this" {
   maximum_instance_count = 50
   instance_memory_in_mb  = 2048
 
-  site_config {}
+  site_config {
+    dynamic "cors" {
+      for_each = var.fullstack_app.frontend ? [1] : []
+
+      content {
+        allowed_origins = [
+          local.has_custom_domain
+          ? "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
+          : "https://${azurerm_static_web_app.this[0].default_host_name}"
+        ]
+        support_credentials = false
+      }
+    }
+  }
 
   depends_on = [
     azurerm_role_assignment.function_storage,
