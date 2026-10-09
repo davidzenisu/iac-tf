@@ -65,6 +65,12 @@ resource "azurerm_function_app_flex_consumption" "this" {
     var.fullstack_app.frontend && local.has_custom_domain ? {
       FRONTEND_URL = "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
     } : {},
+    var.fullstack_app.auth ? {
+      AUTH0_DOMAIN         = data.auth0_tenant.this.domain
+      AUTH0_ISSUER         = "https://${data.auth0_tenant.this.domain}/"
+      AUTH0_AUDIENCE       = local.api_audience
+      AUTH0_REQUIRED_SCOPE = "read:api"
+    } : {},
   )
 
   identity {

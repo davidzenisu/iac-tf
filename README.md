@@ -52,7 +52,7 @@ Fullstack projects are configured through `fullstack_apps`. The root creates one
 - `backend` creates a Linux Function App, its user-assigned identity, and a Storage Account. When the frontend and its custom domain are configured, the Function App receives `FRONTEND_URL` set to that HTTPS URL.
 - `storage` creates a private data container in that account (requires `backend = true`).
 - `database` creates a Supabase project with a Terraform-generated database password.
-- `auth` creates an Auth0 SPA client with callback/origin URLs for the frontend (requires `frontend = true`).
+- `auth` creates an Auth0 SPA client and an API whose audience is the backend custom URL, with a `read:api` permission granted to users with the `user` role (requires `frontend = true`, `backend = true`, and `custom_domain`). New signups receive the `user` role through a tenant-wide Auth0 post-registration Action.
 
 For example:
 
@@ -71,4 +71,4 @@ fullstack_apps = {
 }
 ```
 
-Set the provider credentials through `SUPABASE_ACCESS_TOKEN`, `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, and `AUTH0_CLIENT_SECRET`. Each module instance exposes its GitHub OIDC client/tenant/subscription identifiers, Auth0 client ID, and Supabase project ID; the database password is kept in Terraform state and is not output.
+Set the provider credentials through `SUPABASE_ACCESS_TOKEN`, `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, and `AUTH0_CLIENT_SECRET`. Each module instance exposes its GitHub OIDC client/tenant/subscription identifiers, Auth0 client ID and API audience, and Supabase project ID; the database password is kept in Terraform state and is not output. The Function App receives the Auth0 issuer, audience, and required scope as settings. Its handler must validate RS256 access tokens against those values and require `read:api`; Auth0 resource-server configuration does not enforce checks in application code by itself.

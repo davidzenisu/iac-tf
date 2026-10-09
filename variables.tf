@@ -84,10 +84,10 @@ variable "fullstack_apps" {
     condition = alltrue([
       for app in values(var.fullstack_apps) :
       (!app.storage || app.backend) &&
-      (!app.auth || app.frontend) &&
+      (!app.auth || (app.frontend && app.backend && app.custom_domain != null)) &&
       (!app.database || app.supabase_organization_id != null)
     ])
-    error_message = "Storage requires backend=true, auth requires frontend=true, and database=true requires supabase_organization_id."
+    error_message = "Storage requires backend=true; auth requires frontend=true, backend=true, and custom_domain; database=true requires supabase_organization_id."
   }
 
   validation {
