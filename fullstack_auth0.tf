@@ -41,6 +41,7 @@ resource "auth0_client_grant" "signup_role_assignment" {
   scopes    = ["update:users"]
 }
 
+# https://support.auth0.com/center/s/article/Actions-not-triggered-with-social-login
 resource "auth0_action" "assign_user_role" {
   count = local.fullstack_auth_enabled ? 1 : 0
 
@@ -48,7 +49,11 @@ resource "auth0_action" "assign_user_role" {
   runtime = "node22"
   deploy  = true
   code    = <<-JAVASCRIPT
-    exports.onExecutePostUserRegistration = async (event, api) => {
+    exports.onExecutePostLogin = async (event, api) => {
+      if (event.stats.logins_count !== 1) {
+        return;
+      }
+
       const ManagementClient = require('auth0').ManagementClient;
 
       const management = new ManagementClient({
@@ -70,7 +75,7 @@ resource "auth0_action" "assign_user_role" {
   JAVASCRIPT
 
   supported_triggers {
-    id      = "post-user-registration"
+    id      = "post-login"
     version = "v2"
   }
 
@@ -98,6 +103,6 @@ resource "auth0_action" "assign_user_role" {
 resource "auth0_trigger_action" "assign_user_role" {
   count = local.fullstack_auth_enabled ? 1 : 0
 
-  trigger   = "post-user-registration"
+  trigger   = "post-login"
   action_id = auth0_action.assign_user_role[0].id
 }
