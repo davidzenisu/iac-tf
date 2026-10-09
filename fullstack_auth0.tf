@@ -45,42 +45,30 @@ resource "auth0_action" "assign_user_role" {
   count = local.fullstack_auth_enabled ? 1 : 0
 
   name    = "Assign default user role"
-  runtime = "node18"
+  runtime = "node22"
   deploy  = true
   code    = <<-JAVASCRIPT
-    exports.onExecutePostUserRegistration = async (event) => {
-      const domain = event.secrets.AUTH0_DOMAIN;
-      const tokenResponse = await fetch(`https://$${domain}/oauth/token`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          client_id: event.secrets.M2M_CLIENT_ID,
-          client_secret: event.secrets.M2M_CLIENT_SECRET,
-          audience: `https://$${domain}/api/v2/`,
-          grant_type: "client_credentials",
-          scope: "update:users"
-        })
-      });
-
-      if (!tokenResponse.ok) {
-        throw new Error(`Management API token request failed: $${tokenResponse.status}`);
+    exports.onExecutePostLogin = async (event, api) => {
+      if (event.stats.logins_count !== 1) {
+        return;
       }
 
-      const { access_token: accessToken } = await tokenResponse.json();
-      const assignmentResponse = await fetch(
-        `https://$${domain}/api/v2/users/$${encodeURIComponent(event.user.user_id)}/roles`,
-        {
-          method: "POST",
-          headers: {
-            authorization: `Bearer $${accessToken}`,
-            "content-type": "application/json"
-          },
-          body: JSON.stringify({ roles: [event.secrets.USER_ROLE_ID] })
-        }
-      );
+      const ManagementClient = require('auth0').ManagementClient;
 
-      if (!assignmentResponse.ok) {
-        throw new Error(`Default role assignment failed: $${assignmentResponse.status}`);
+      const management = new ManagementClient({
+          domain: event.secrets.domain,
+          clientId: event.secrets.clientId,
+          clientSecret: event.secrets.clientSecret,
+      });
+
+      const params =  { id : event.user.user_id};
+      const data = { "roles" : [event.secrets.USER_ROLE_ID]};
+
+      try {
+        const res = await management.assignRolestoUser(params, data)
+      } catch (e) {
+        console.log(e)
+        // Handle error
       }
     };
   JAVASCRIPT
@@ -88,21 +76,6 @@ resource "auth0_action" "assign_user_role" {
   supported_triggers {
     id      = "post-user-registration"
     version = "v3"
-  }
-
-  secrets {
-    name  = "AUTH0_DOMAIN"
-    value = data.auth0_tenant.fullstack[0].domain
-  }
-
-  secrets {
-    name  = "M2M_CLIENT_ID"
-    value = auth0_client.signup_role_assignment[0].client_id
-  }
-
-  secrets {
-    name  = "M2M_CLIENT_SECRET"
-    value = auth0_client_credentials.signup_role_assignment[0].client_secret
   }
 
   secrets {
