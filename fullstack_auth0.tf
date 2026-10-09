@@ -18,7 +18,7 @@ resource "auth0_role" "user" {
 resource "auth0_client" "signup_role_assignment" {
   count = local.fullstack_auth_enabled ? 1 : 0
 
-  name     = "Terraform signup role assignment"
+  name     = "Signup role assignment"
   app_type = "non_interactive"
 
   jwt_configuration {
@@ -56,9 +56,9 @@ resource "auth0_action" "assign_user_role" {
       const ManagementClient = require('auth0').ManagementClient;
 
       const management = new ManagementClient({
-          domain: event.secrets.domain,
-          clientId: event.secrets.clientId,
-          clientSecret: event.secrets.clientSecret,
+          domain: event.secrets.AUTH0_DOMAIN,
+          clientId: event.secrets.M2M_CLIENT_ID,
+          clientSecret: event.secrets.M2M_CLIENT_SECRET,
       });
 
       const params =  { id : event.user.user_id};
@@ -76,6 +76,21 @@ resource "auth0_action" "assign_user_role" {
   supported_triggers {
     id      = "post-user-registration"
     version = "v2"
+  }
+
+  secrets {
+    name  = "AUTH0_DOMAIN"
+    value = data.auth0_tenant.fullstack[0].domain
+  }
+
+  secrets {
+    name  = "M2M_CLIENT_ID"
+    value = auth0_client.signup_role_assignment[0].client_id
+  }
+
+  secrets {
+    name  = "M2M_CLIENT_SECRET"
+    value = auth0_client_credentials.signup_role_assignment[0].client_secret
   }
 
   secrets {
