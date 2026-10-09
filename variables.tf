@@ -107,7 +107,7 @@ variable "fullstack_apps" {
       var.zone_name != null ||
       alltrue([
         for app in values(var.fullstack_apps) :
-        !app.frontend || app.custom_domain == null
+        app.custom_domain == null
       ])
     )
     error_message = "A zone_name must be configured when a fullstack app uses a custom_domain."
