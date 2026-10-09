@@ -88,7 +88,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
   }
 
   storage_container_type            = "blobContainer"
-  storage_container_endpoint        = "${azurerm_storage_account.this[0].primary_blob_endpoint}${local.function_deployment_container_name}"
+  storage_container_endpoint        = "${azurerm_storage_account.this[0].primary_blob_endpoint}${azurerm_storage_container.deployment[0].name}"
   storage_authentication_type       = "UserAssignedIdentity"
   storage_user_assigned_identity_id = azurerm_user_assigned_identity.function[0].id
 
