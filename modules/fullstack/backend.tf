@@ -62,6 +62,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
       AzureWebJobsStorage__accountname = azurerm_storage_account.this[0].name
     },
     var.fullstack_app.storage ? {
+      STORAGE_ACCOUNT_NAME   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.storage_account_name[0].versionless_id})"
       STORAGE_CONTAINER_NAME = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.storage_container_name[0].versionless_id})"
     } : {},
     var.fullstack_app.database ? {
