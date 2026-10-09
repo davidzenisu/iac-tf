@@ -18,7 +18,7 @@ resource "auth0_role" "user" {
 resource "auth0_client" "signup_role_assignment" {
   count = local.fullstack_auth_enabled ? 1 : 0
 
-  name     = "Terraform signup role assignment"
+  name     = "Signup role assignment"
   app_type = "non_interactive"
 
   jwt_configuration {
