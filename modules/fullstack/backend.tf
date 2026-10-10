@@ -95,6 +95,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
       AUTH0_ISSUER         = "https://${data.auth0_tenant.this.domain}/"
       AUTH0_AUDIENCE       = local.api_audience
       AUTH0_REQUIRED_SCOPE = "read:api"
+      AUTH0_DOCS_CLIENT_ID = auth0_client.docs[0].client_id
     } : {},
   )
 

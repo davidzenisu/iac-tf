@@ -12,6 +12,11 @@ output "auth0_client_id" {
   value       = try(auth0_client.this[0].client_id, null)
 }
 
+output "auth0_docs_client_id" {
+  description = "Client ID for the Auth0 application used to log in via the API docs, if enabled."
+  value       = try(auth0_client.docs[0].client_id, null)
+}
+
 output "auth0_api_audience" {
   description = "Audience that frontend clients must request when obtaining an access token for this API."
   value       = try(auth0_resource_server.this[0].identifier, null)
