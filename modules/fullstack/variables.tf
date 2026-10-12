@@ -12,9 +12,15 @@ variable "fullstack_app" {
     storage                  = optional(bool, true)
     database                 = optional(bool, true)
     auth                     = optional(bool, true)
+    auth0_permissions        = optional(map(object({ description = optional(string) })), {})
     supabase_organization_id = optional(string)
     supabase_region          = optional(string, "eu-west-1")
   })
+
+  validation {
+    condition     = !contains(keys(var.fullstack_app.auth0_permissions), "read:api")
+    error_message = "auth0_permissions must not redefine the built-in read:api permission."
+  }
 }
 
 variable "auth0_user_role_id" {

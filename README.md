@@ -54,6 +54,8 @@ Fullstack projects are configured through `fullstack_apps`. The root creates one
 - `database` creates a Supabase project with a Terraform-generated database password.
 - `auth` creates an Auth0 SPA client and an API whose audience is the backend custom URL, with a `read:api` permission granted to users with the `user` role (requires `frontend = true`, `backend = true`, and `custom_domain`). New signups receive the `user` role through a tenant-wide Auth0 post-registration Action.
 
+Additional API permissions can be defined per app through `auth0_permissions`, a map from permission name to an object with an optional `description`. They are created on the app's API but not assigned to any role.
+
 For example:
 
 ```hcl
@@ -67,6 +69,9 @@ fullstack_apps = {
     custom_domain            = "shop"
     supabase_organization_id = "your-supabase-organization"
     supabase_region          = "eu-west-1"
+    auth0_permissions = {
+      "write:orders" = { description = "Create and update orders." }
+    }
   }
 }
 ```
