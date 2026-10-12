@@ -74,5 +74,8 @@ fullstack_apps = {
     function_runtime_version = "3.14"
     custom_domain            = "drawing"
     supabase_organization_id = "htvllqfeppqjdwgdbkuj" #Slug only
+    auth0_permissions = {
+      "edit:content" = { description = "Access the prompt and title pregenerated contents" }
+    }
   }
 }
