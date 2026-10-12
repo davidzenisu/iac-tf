@@ -82,26 +82,18 @@ resource "auth0_resource_server_scope" "read_api" {
   description                = "Access the ${var.fullstack_app.project_name} API."
 }
 
+resource "auth0_resource_server_scope" "custom_api" {
+  for_each = var.fullstack_app.auth && var.fullstack_app.backend ? var.fullstack_app.auth0_permissions : {}
+
+  resource_server_identifier = auth0_resource_server.this[0].identifier
+  scope                      = each.key
+  description                = each.value.description
+}
+
 resource "auth0_role_permission" "user_read_api" {
   count = var.fullstack_app.auth && var.fullstack_app.backend ? 1 : 0
 
   role_id                    = var.auth0_user_role_id
   resource_server_identifier = auth0_resource_server.this[0].identifier
   permission                 = auth0_resource_server_scope.read_api[0].scope
-}
-
-resource "auth0_client_grant" "frontend_api" {
-  count = var.fullstack_app.auth && var.fullstack_app.backend ? 1 : 0
-
-  client_id = auth0_client.this[0].id
-  audience  = auth0_resource_server.this[0].identifier
-  scopes    = [auth0_resource_server_scope.read_api[0].scope]
-}
-
-resource "auth0_client_grant" "docs_api" {
-  count = var.fullstack_app.auth && var.fullstack_app.backend ? 1 : 0
-
-  client_id = auth0_client.docs[0].id
-  audience  = auth0_resource_server.this[0].identifier
-  scopes    = [auth0_resource_server_scope.read_api[0].scope]
 }
