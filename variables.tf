@@ -136,41 +136,31 @@ variable "android_apps" {
   default = {}
 }
 
-variable "auth0_google_client_id" {
-  description = "Optional Google OAuth client ID for the Auth0 Google social connection. Passed from the GitHub secret AUTH0_GOOGLE_CLIENT_ID; empty means not configured."
+variable "bootstrap_key_vault_name" {
+  description = "Name of the bootstrap Key Vault holding optional Auth0 social login credentials. Passed from the GitHub secret AZURE_KEY_VAULT_NAME; empty disables the lookup."
   type        = string
   default     = null
 }
 
-variable "auth0_google_client_secret" {
-  description = "Optional Google OAuth client secret for the Auth0 Google social connection. Passed from the GitHub secret AUTH0_GOOGLE_CLIENT_SECRET."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "auth0_github_client_id" {
-  description = "Optional GitHub OAuth client ID for the Auth0 GitHub social connection. Passed from the GitHub secret AUTH0_GITHUB_CLIENT_ID; empty means not configured."
+variable "bootstrap_key_vault_resource_group_name" {
+  description = "Resource group of the bootstrap Key Vault. Passed from the GitHub secret AZURE_BACKEND_RG."
   type        = string
   default     = null
 }
 
-variable "auth0_github_client_secret" {
-  description = "Optional GitHub OAuth client secret for the Auth0 GitHub social connection. Passed from the GitHub secret AUTH0_GITHUB_CLIENT_SECRET."
-  type        = string
-  default     = null
-  sensitive   = true
-}
+variable "auth0_social_connections" {
+  description = <<DESCRIPTION
+Auth0 social login providers to activate. A provider is only configured if its client id and secret
+(`auth0-<provider>-client-id` and `auth0-<provider>-client-secret`) exist in the bootstrap Key Vault.
 
-variable "auth0_microsoft_client_id" {
-  description = "Optional Microsoft OAuth client ID for the Auth0 Microsoft social connection. Passed from the GitHub secret AUTH0_MICROSOFT_CLIENT_ID; empty means not configured."
-  type        = string
-  default     = null
-}
-
-variable "auth0_microsoft_client_secret" {
-  description = "Optional Microsoft OAuth client secret for the Auth0 Microsoft social connection. Passed from the GitHub secret AUTH0_MICROSOFT_CLIENT_SECRET."
-  type        = string
-  default     = null
-  sensitive   = true
+- `google` - (Optional) Activate the Google connection. Defaults to false.
+- `github` - (Optional) Activate the GitHub connection. Defaults to false.
+- `microsoft` - (Optional) Activate the Microsoft connection. Defaults to false.
+DESCRIPTION
+  type = object({
+    google    = optional(bool, false)
+    github    = optional(bool, false)
+    microsoft = optional(bool, false)
+  })
+  default = {}
 }

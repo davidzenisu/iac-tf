@@ -54,7 +54,14 @@ Fullstack projects are configured through `fullstack_apps`. The root creates one
 - `database` creates a Supabase project with a Terraform-generated database password.
 - `auth` creates an Auth0 SPA client and an API whose audience is the backend custom URL, with a `read:api` permission granted to users with the `user` role (requires `frontend = true`, `backend = true`, and `custom_domain`). New signups receive the `user` role through a tenant-wide Auth0 post-registration Action.
 
-Google, GitHub, and Microsoft social logins are configured as Auth0 connections when their credentials are provided through the bootstrap (see [`.bootstrap/README.md`](./.bootstrap/README.md)); the workflow passes them as `TF_VAR_auth0_<provider>_client_id`/`_client_secret`. Each configured connection is enabled for the SPA and docs clients of every fullstack app with `auth = true`.
+Google, GitHub, and Microsoft social logins are activated with the `auth0_social_connections` flags. An activated provider is configured as an Auth0 connection only if its `auth0-<provider>-client-id` and `auth0-<provider>-client-secret` secrets exist in the bootstrap Key Vault (see [`.bootstrap/README.md`](./.bootstrap/README.md)); otherwise it is skipped with a plan warning. Each connection is enabled for the SPA and docs clients of every fullstack app with `auth = true`.
+
+```hcl
+auth0_social_connections = {
+  google = true
+  github = true
+}
+```
 
 Additional API permissions can be defined per app through `auth0_permissions`, a map from permission name to an object with an optional `description`. They are created on the app's API but not assigned to any role.
 

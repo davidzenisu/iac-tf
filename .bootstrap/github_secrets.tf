@@ -1,17 +1,11 @@
 locals {
-  auth0_social_github_secret_values = merge([
-    for name, provider in local.auth0_social_providers_configured : {
-      "AUTH0_${upper(name)}_CLIENT_ID"     = provider.client_id
-      "AUTH0_${upper(name)}_CLIENT_SECRET" = provider.client_secret
-    }
-  ]...)
-
-  github_secret_values = merge({
+  github_secret_values = {
     AZURE_TENANT_ID        = data.azurerm_client_config.current.tenant_id
     AZURE_SUBSCRIPTION_ID  = data.azurerm_client_config.current.subscription_id
     AZURE_CLIENT_ID        = azurerm_user_assigned_identity.github_actions.client_id
     AZURE_BACKEND_RG       = var.azure_backend_resource_group
     AZURE_BACKEND_ST       = var.azure_backend_storage_account
+    AZURE_KEY_VAULT_NAME   = azurerm_key_vault.bootstrap.name
     CLOUDFLARE_API_TOKEN   = var.cloudflare_api_token
     GCP_WORKLOAD_PROVIDER  = google_iam_workload_identity_pool_provider.github.name
     GCP_PROJECT_ID         = var.gcp_project_id
@@ -20,7 +14,7 @@ locals {
     AUTH0_DOMAIN           = var.auth0_domain
     AUTH0_CLIENT_ID        = auth0_client.github_actions.client_id
     AUTH0_CLIENT_SECRET    = auth0_client_credentials.github_actions.client_secret
-  }, local.auth0_social_github_secret_values)
+  }
 }
 
 resource "github_actions_secret" "this" {

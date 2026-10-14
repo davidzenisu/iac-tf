@@ -53,6 +53,14 @@ resource "azurerm_role_assignment" "key_vault_secrets_officer" {
   principal_type       = "User"
 }
 
+# Lets the main Terraform workflow read optional secrets, e.g. Auth0 social login credentials
+resource "azurerm_role_assignment" "github_actions_key_vault_secrets_user" {
+  scope                = azurerm_key_vault.bootstrap.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.github_actions.principal_id
+  principal_type       = "ServicePrincipal"
+}
+
 resource "time_sleep" "key_vault_rbac_propagation" {
   create_duration = "30s"
 
