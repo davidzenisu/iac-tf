@@ -21,7 +21,7 @@ supabase_access_token = "replace-with-supabase-personal-access-token"
 
 # Optional Auth0 social login providers. Leave unset to skip a provider.
 # Google:  https://auth0.com/docs/authenticate/identity-providers/social-identity-providers/google
-# GitHub:  https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
+# GitHub:  https://auth0.com/docs/authenticate/identity-providers/social-identity-providers/github
 # Use https://<auth0-domain>/login/callback as the redirect / callback URL.
 # Each configured provider is written to Key Vault; activate it in the main
 # Terraform through auth0_social_connections in production.tfvars.
