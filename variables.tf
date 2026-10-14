@@ -135,3 +135,42 @@ variable "android_apps" {
   }))
   default = {}
 }
+
+variable "auth0_google_client_id" {
+  description = "Optional Google OAuth client ID for the Auth0 Google social connection. Passed from the GitHub secret AUTH0_GOOGLE_CLIENT_ID; empty means not configured."
+  type        = string
+  default     = null
+}
+
+variable "auth0_google_client_secret" {
+  description = "Optional Google OAuth client secret for the Auth0 Google social connection. Passed from the GitHub secret AUTH0_GOOGLE_CLIENT_SECRET."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "auth0_github_client_id" {
+  description = "Optional GitHub OAuth client ID for the Auth0 GitHub social connection. Passed from the GitHub secret AUTH0_GITHUB_CLIENT_ID; empty means not configured."
+  type        = string
+  default     = null
+}
+
+variable "auth0_github_client_secret" {
+  description = "Optional GitHub OAuth client secret for the Auth0 GitHub social connection. Passed from the GitHub secret AUTH0_GITHUB_CLIENT_SECRET."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "auth0_microsoft_client_id" {
+  description = "Optional Microsoft OAuth client ID for the Auth0 Microsoft social connection. Passed from the GitHub secret AUTH0_MICROSOFT_CLIENT_ID; empty means not configured."
+  type        = string
+  default     = null
+}
+
+variable "auth0_microsoft_client_secret" {
+  description = "Optional Microsoft OAuth client secret for the Auth0 Microsoft social connection. Passed from the GitHub secret AUTH0_MICROSOFT_CLIENT_SECRET."
+  type        = string
+  default     = null
+  sensitive   = true
+}

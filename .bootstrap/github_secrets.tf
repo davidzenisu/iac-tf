@@ -1,5 +1,12 @@
 locals {
-  github_secret_values = {
+  auth0_social_github_secret_values = merge([
+    for name, provider in local.auth0_social_providers_configured : {
+      "AUTH0_${upper(name)}_CLIENT_ID"     = provider.client_id
+      "AUTH0_${upper(name)}_CLIENT_SECRET" = provider.client_secret
+    }
+  ]...)
+
+  github_secret_values = merge({
     AZURE_TENANT_ID        = data.azurerm_client_config.current.tenant_id
     AZURE_SUBSCRIPTION_ID  = data.azurerm_client_config.current.subscription_id
     AZURE_CLIENT_ID        = azurerm_user_assigned_identity.github_actions.client_id
@@ -13,7 +20,7 @@ locals {
     AUTH0_DOMAIN           = var.auth0_domain
     AUTH0_CLIENT_ID        = auth0_client.github_actions.client_id
     AUTH0_CLIENT_SECRET    = auth0_client_credentials.github_actions.client_secret
-  }
+  }, local.auth0_social_github_secret_values)
 }
 
 resource "github_actions_secret" "this" {

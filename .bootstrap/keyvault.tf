@@ -1,5 +1,23 @@
 locals {
-  key_vault_secret_values = {
+  # Optional Auth0 social login providers; only configured ones are stored.
+  auth0_social_providers = {
+    google    = { client_id = var.auth0_google_client_id, client_secret = var.auth0_google_client_secret }
+    github    = { client_id = var.auth0_github_client_id, client_secret = var.auth0_github_client_secret }
+    microsoft = { client_id = var.auth0_microsoft_client_id, client_secret = var.auth0_microsoft_client_secret }
+  }
+
+  auth0_social_providers_configured = {
+    for name, provider in local.auth0_social_providers : name => provider if provider.client_id != null
+  }
+
+  auth0_social_key_vault_secret_values = merge([
+    for name, provider in local.auth0_social_providers_configured : {
+      "auth0-${name}-client-id"     = provider.client_id
+      "auth0-${name}-client-secret" = provider.client_secret
+    }
+  ]...)
+
+  key_vault_secret_values = merge({
     "azure-tenant-id"        = data.azurerm_client_config.current.tenant_id
     "azure-subscription-id"  = data.azurerm_client_config.current.subscription_id
     "azure-client-id"        = azurerm_user_assigned_identity.github_actions.client_id
@@ -13,7 +31,7 @@ locals {
     "auth0-domain"           = var.auth0_domain
     "auth0-client-id"        = auth0_client.github_actions.client_id
     "auth0-client-secret"    = auth0_client_credentials.github_actions.client_secret
-  }
+  }, local.auth0_social_key_vault_secret_values)
 }
 
 resource "azurerm_key_vault" "bootstrap" {

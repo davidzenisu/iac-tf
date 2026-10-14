@@ -31,6 +31,13 @@ env:
   AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
   AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+  # Optional Auth0 social login providers; unset secrets resolve to empty strings
+  TF_VAR_auth0_google_client_id: ${{ secrets.AUTH0_GOOGLE_CLIENT_ID }}
+  TF_VAR_auth0_google_client_secret: ${{ secrets.AUTH0_GOOGLE_CLIENT_SECRET }}
+  TF_VAR_auth0_github_client_id: ${{ secrets.AUTH0_GITHUB_CLIENT_ID }}
+  TF_VAR_auth0_github_client_secret: ${{ secrets.AUTH0_GITHUB_CLIENT_SECRET }}
+  TF_VAR_auth0_microsoft_client_id: ${{ secrets.AUTH0_MICROSOFT_CLIENT_ID }}
+  TF_VAR_auth0_microsoft_client_secret: ${{ secrets.AUTH0_MICROSOFT_CLIENT_SECRET }}
 
 jobs:
   terraform-plan:
