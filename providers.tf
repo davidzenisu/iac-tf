@@ -2,6 +2,9 @@ provider "azurerm" {
   features {}
 }
 
+# Authenticates with the same ARM_* OIDC settings as azurerm
+provider "azuread" {}
+
 provider "cloudflare" {
 }
 

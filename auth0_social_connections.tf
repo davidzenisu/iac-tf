@@ -6,12 +6,22 @@ locals {
       strategy_version = null
       # Auth0 developer keys are used while no own credentials exist; not meant for production
       dev_keys_fallback = true
+      entra_id_app      = false
     }
     github = {
       strategy          = "github"
       scopes            = ["email", "read_user"]
       strategy_version  = null
       dev_keys_fallback = false
+      entra_id_app      = false
+    }
+    microsoft = {
+      strategy          = "windowslive"
+      scopes            = ["signin", "graph_user"]
+      strategy_version  = 2
+      dev_keys_fallback = false
+      # Credentials come from the Entra ID app registration in auth0_microsoft_entra_id.tf
+      entra_id_app = true
     }
   }
 
@@ -31,7 +41,8 @@ locals {
   # Activated providers whose credentials exist in the bootstrap Key Vault
   auth0_social_connections_with_credentials = {
     for name, provider in local.auth0_social_providers_activated : name => provider
-    if contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-id") &&
+    if !provider.entra_id_app &&
+    contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-id") &&
     contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-secret")
   }
 
@@ -41,9 +52,16 @@ locals {
     if provider.dev_keys_fallback && !contains(keys(local.auth0_social_connections_with_credentials), name)
   }
 
+  # Activated providers whose app registration is created in Entra ID
+  auth0_social_connections_with_entra_id_app = {
+    for name, provider in local.auth0_social_providers_activated : name => provider
+    if provider.entra_id_app
+  }
+
   auth0_social_connections = merge(
     local.auth0_social_connections_with_credentials,
     local.auth0_social_connections_with_dev_keys,
+    local.auth0_social_connections_with_entra_id_app,
   )
 
   # SPA and docs clients of every fullstack app with auth enabled
@@ -53,7 +71,7 @@ locals {
 }
 
 data "azurerm_key_vault" "bootstrap" {
-  count = local.bootstrap_key_vault_configured && length(local.auth0_social_providers_activated) > 0 ? 1 : 0
+  count = local.bootstrap_key_vault_configured && length(local.auth0_social_providers_activated) > length(local.auth0_social_connections_with_entra_id_app) ? 1 : 0
 
   name                = var.bootstrap_key_vault_name
   resource_group_name = var.bootstrap_key_vault_resource_group_name
@@ -87,8 +105,16 @@ resource "auth0_connection" "social" {
 
   options {
     # Empty credentials make Auth0 use its developer keys
-    client_id                = try(data.azurerm_key_vault_secret.auth0_social_client_id[each.key].value, "")
-    client_secret            = try(data.azurerm_key_vault_secret.auth0_social_client_secret[each.key].value, "")
+    client_id = (
+      each.value.entra_id_app
+      ? one(azuread_application.auth0_microsoft[*].client_id)
+      : try(data.azurerm_key_vault_secret.auth0_social_client_id[each.key].value, "")
+    )
+    client_secret = (
+      each.value.entra_id_app
+      ? one(azuread_application_password.auth0_microsoft[*].value)
+      : try(data.azurerm_key_vault_secret.auth0_social_client_secret[each.key].value, "")
+    )
     scopes                   = each.value.scopes
     strategy_version         = each.value.strategy_version
     set_user_root_attributes = "on_each_login"

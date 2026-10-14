@@ -150,15 +150,17 @@ variable "bootstrap_key_vault_resource_group_name" {
 
 variable "auth0_social_connections" {
   description = <<DESCRIPTION
-Auth0 social login providers to activate. A provider is only configured if its client id and secret
+Auth0 social login providers to activate. Google and GitHub are only configured if their client id and secret
 (`auth0-<provider>-client-id` and `auth0-<provider>-client-secret`) exist in the bootstrap Key Vault.
 
 - `google` - (Optional) Activate the Google connection. Defaults to false.
 - `github` - (Optional) Activate the GitHub connection. Defaults to false.
+- `microsoft` - (Optional) Activate the Microsoft connection. Its Entra ID app registration and client secret are created by Terraform, so no Key Vault secrets are needed. Defaults to false.
 DESCRIPTION
   type = object({
-    google = optional(bool, false)
-    github = optional(bool, false)
+    google    = optional(bool, false)
+    github    = optional(bool, false)
+    microsoft = optional(bool, false)
   })
   default = {}
 }
