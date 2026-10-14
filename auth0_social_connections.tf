@@ -13,12 +13,6 @@ locals {
       strategy_version  = null
       dev_keys_fallback = false
     }
-    microsoft = {
-      strategy          = "windowslive"
-      scopes            = ["signin", "graph_user"]
-      strategy_version  = 2
-      dev_keys_fallback = false
-    }
   }
 
   # Missing GitHub secrets are passed as empty strings, so treat those as unset.

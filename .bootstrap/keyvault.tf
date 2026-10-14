@@ -1,9 +1,8 @@
 locals {
   # Optional Auth0 social login providers; only configured ones are stored.
   auth0_social_providers = {
-    google    = { client_id = var.auth0_google_client_id, client_secret = var.auth0_google_client_secret }
-    github    = { client_id = var.auth0_github_client_id, client_secret = var.auth0_github_client_secret }
-    microsoft = { client_id = var.auth0_microsoft_client_id, client_secret = var.auth0_microsoft_client_secret }
+    google = { client_id = var.auth0_google_client_id, client_secret = var.auth0_google_client_secret }
+    github = { client_id = var.auth0_github_client_id, client_secret = var.auth0_github_client_secret }
   }
 
   auth0_social_providers_configured = {

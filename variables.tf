@@ -155,12 +155,10 @@ Auth0 social login providers to activate. A provider is only configured if its c
 
 - `google` - (Optional) Activate the Google connection. Defaults to false.
 - `github` - (Optional) Activate the GitHub connection. Defaults to false.
-- `microsoft` - (Optional) Activate the Microsoft connection. Defaults to false.
 DESCRIPTION
   type = object({
-    google    = optional(bool, false)
-    github    = optional(bool, false)
-    microsoft = optional(bool, false)
+    google = optional(bool, false)
+    github = optional(bool, false)
   })
   default = {}
 }

@@ -126,21 +126,3 @@ variable "auth0_github_client_secret" {
     error_message = "Set both auth0_github_client_id and auth0_github_client_secret, or neither."
   }
 }
-
-variable "auth0_microsoft_client_id" {
-  description = "Optional Microsoft OAuth client ID for the Auth0 Microsoft social connection. Stored only when provided."
-  type        = string
-  default     = null
-}
-
-variable "auth0_microsoft_client_secret" {
-  description = "Optional Microsoft OAuth client secret for the Auth0 Microsoft social connection. Required when auth0_microsoft_client_id is set."
-  type        = string
-  default     = null
-  sensitive   = true
-
-  validation {
-    condition     = (var.auth0_microsoft_client_id == null) == (var.auth0_microsoft_client_secret == null)
-    error_message = "Set both auth0_microsoft_client_id and auth0_microsoft_client_secret, or neither."
-  }
-}
