@@ -4,16 +4,20 @@ locals {
       strategy         = "google-oauth2"
       scopes           = ["email", "profile"]
       strategy_version = null
+      # Auth0 developer keys are used while no own credentials exist; not meant for production
+      dev_keys_fallback = true
     }
     github = {
-      strategy         = "github"
-      scopes           = ["email", "read_user"]
-      strategy_version = null
+      strategy          = "github"
+      scopes            = ["email", "read_user"]
+      strategy_version  = null
+      dev_keys_fallback = false
     }
     microsoft = {
-      strategy         = "windowslive"
-      scopes           = ["signin", "graph_user"]
-      strategy_version = 2
+      strategy          = "windowslive"
+      scopes            = ["signin", "graph_user"]
+      strategy_version  = 2
+      dev_keys_fallback = false
     }
   }
 
@@ -31,11 +35,22 @@ locals {
   bootstrap_key_vault_secret_names = try(data.azurerm_key_vault_secrets.bootstrap[0].names, [])
 
   # Activated providers whose credentials exist in the bootstrap Key Vault
-  auth0_social_connections = {
+  auth0_social_connections_with_credentials = {
     for name, provider in local.auth0_social_providers_activated : name => provider
     if contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-id") &&
     contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-secret")
   }
+
+  # Activated providers without credentials that fall back to Auth0 developer keys
+  auth0_social_connections_with_dev_keys = {
+    for name, provider in local.auth0_social_providers_activated : name => provider
+    if provider.dev_keys_fallback && !contains(keys(local.auth0_social_connections_with_credentials), name)
+  }
+
+  auth0_social_connections = merge(
+    local.auth0_social_connections_with_credentials,
+    local.auth0_social_connections_with_dev_keys,
+  )
 
   # SPA and docs clients of every fullstack app with auth enabled
   auth0_social_enabled_clients = compact(flatten([
@@ -57,14 +72,14 @@ data "azurerm_key_vault_secrets" "bootstrap" {
 }
 
 data "azurerm_key_vault_secret" "auth0_social_client_id" {
-  for_each = local.auth0_social_connections
+  for_each = local.auth0_social_connections_with_credentials
 
   name         = "auth0-${each.key}-client-id"
   key_vault_id = data.azurerm_key_vault.bootstrap[0].id
 }
 
 data "azurerm_key_vault_secret" "auth0_social_client_secret" {
-  for_each = local.auth0_social_connections
+  for_each = local.auth0_social_connections_with_credentials
 
   name         = "auth0-${each.key}-client-secret"
   key_vault_id = data.azurerm_key_vault.bootstrap[0].id
@@ -77,8 +92,9 @@ resource "auth0_connection" "social" {
   strategy = each.value.strategy
 
   options {
-    client_id                = data.azurerm_key_vault_secret.auth0_social_client_id[each.key].value
-    client_secret            = data.azurerm_key_vault_secret.auth0_social_client_secret[each.key].value
+    # Empty credentials make Auth0 use its developer keys
+    client_id                = try(data.azurerm_key_vault_secret.auth0_social_client_id[each.key].value, "")
+    client_secret            = try(data.azurerm_key_vault_secret.auth0_social_client_secret[each.key].value, "")
     scopes                   = each.value.scopes
     strategy_version         = each.value.strategy_version
     set_user_root_attributes = "on_each_login"
@@ -98,5 +114,10 @@ check "auth0_social_connection_secrets" {
       for name in keys(local.auth0_social_providers_activated) : contains(keys(local.auth0_social_connections), name)
     ])
     error_message = "Some activated Auth0 social connections were skipped because the bootstrap Key Vault isn't configured or lacks their auth0-<provider>-client-id/-client-secret secrets."
+  }
+
+  assert {
+    condition     = length(local.auth0_social_connections_with_dev_keys) == 0
+    error_message = "Auth0 social connections ${join(", ", keys(local.auth0_social_connections_with_dev_keys))} use Auth0 developer keys, which are not meant for production. Add auth0-<provider>-client-id/-client-secret to the bootstrap Key Vault to use your own credentials."
   }
 }
