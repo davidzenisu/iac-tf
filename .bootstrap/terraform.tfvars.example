@@ -23,8 +23,8 @@ supabase_access_token = "replace-with-supabase-personal-access-token"
 # Google:  https://auth0.com/docs/authenticate/identity-providers/social-identity-providers/google
 # GitHub:  https://auth0.com/docs/authenticate/identity-providers/social-identity-providers/github
 # Use https://<auth0-domain>/login/callback as the redirect / callback URL.
-# Each configured provider is written to Key Vault; activate it in the main
-# Terraform through auth0_social_connections in production.tfvars.
+# Each configured provider is written to Key Vault, and the main Terraform
+# workflow deploys its Auth0 social connection.
 # auth0_google_client_id        = "replace-with-google-oauth-client-id"
 # auth0_google_client_secret    = "replace-with-google-oauth-client-secret"
 # auth0_github_client_id        = "replace-with-github-oauth-client-id"

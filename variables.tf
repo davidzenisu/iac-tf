@@ -171,19 +171,3 @@ variable "auth0_github_client_secret" {
     error_message = "Set both auth0_github_client_id and auth0_github_client_secret, or neither."
   }
 }
-
-variable "auth0_social_connections" {
-  description = <<DESCRIPTION
-Auth0 social login providers to activate. A provider is only configured if its client id and secret are set
-(`auth0_<provider>_client_id` and `auth0_<provider>_client_secret`, loaded by the pipeline from the bootstrap Key Vault).
-Without them, Google falls back to Auth0 developer keys and GitHub is skipped.
-
-- `google` - (Optional) Activate the Google connection. Defaults to false.
-- `github` - (Optional) Activate the GitHub connection. Defaults to false.
-DESCRIPTION
-  type = object({
-    google = optional(bool, false)
-    github = optional(bool, false)
-  })
-  default = {}
-}
