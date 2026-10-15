@@ -172,20 +172,8 @@ variable "auth0_github_client_secret" {
   }
 }
 
-variable "auth0_social_connections" {
-  description = <<DESCRIPTION
-Auth0 social login providers to activate. Google and GitHub are only configured if their client id and secret are set
-(`auth0_<provider>_client_id` and `auth0_<provider>_client_secret`, loaded by the pipeline from the bootstrap Key Vault).
-Without them, Google falls back to Auth0 developer keys and GitHub is skipped.
-
-- `google` - (Optional) Activate the Google connection. Defaults to false.
-- `github` - (Optional) Activate the GitHub connection. Defaults to false.
-- `microsoft` - (Optional) Activate the Microsoft connection. Its Entra ID app registration and client secret are created by Terraform, so no credentials are needed. Defaults to false.
-DESCRIPTION
-  type = object({
-    google    = optional(bool, false)
-    github    = optional(bool, false)
-    microsoft = optional(bool, false)
-  })
-  default = {}
+variable "auth0_microsoft_connection_enabled" {
+  description = "Deploy the Auth0 Microsoft social connection. Terraform creates its Entra ID app registration and client secret, which requires the Graph permission granted by the bootstrap."
+  type        = bool
+  default     = false
 }

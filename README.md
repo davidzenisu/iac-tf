@@ -54,14 +54,9 @@ Fullstack projects are configured through `fullstack_apps`. The root creates one
 - `database` creates a Supabase project with a Terraform-generated database password.
 - `auth` creates an Auth0 SPA client and an API whose audience is the backend custom URL, with a `read:api` permission granted to users with the `user` role (requires `frontend = true`, `backend = true`, and `custom_domain`). New signups receive the `user` role through a tenant-wide Auth0 post-registration Action.
 
-Google, GitHub, and Microsoft social logins are activated with the `auth0_social_connections` flags. For Microsoft, Terraform creates the Entra ID app registration and its client secret itself (rotated every 180 days), so no credentials have to be provided. For Google and GitHub, before planning, the workflow loads the `auth0-<provider>-client-id` and `auth0-<provider>-client-secret` secrets from the bootstrap Key Vault (see [`.bootstrap/README.md`](./.bootstrap/README.md)) into the `auth0_<provider>_client_id`/`_client_secret` variables; secrets that don't exist leave their variables unset. An activated Google or GitHub provider without credentials is skipped with a plan warning. Google is the exception: without credentials it falls back to Auth0's developer keys, which are fine for development but not for production, and the plan shows a warning until your own credentials are in the vault. Each connection is enabled for the SPA and docs clients of every fullstack app with `auth = true`.
+Google and GitHub social logins are deployed when their credentials are available. Before planning, the workflow loads the `auth0-<provider>-client-id` and `auth0-<provider>-client-secret` secrets from the bootstrap Key Vault (see [`.bootstrap/README.md`](./.bootstrap/README.md)) into the `auth0_<provider>_client_id`/`_client_secret` variables; secrets that don't exist leave their variables unset. A provider whose client id and secret are set is configured as an Auth0 connection and enabled for the SPA and docs clients of every fullstack app with `auth = true`; providers without credentials are not deployed.
 
-```hcl
-auth0_social_connections = {
-  google = true
-  github = true
-}
-```
+The Microsoft social login is deployed when `auth0_microsoft_connection_enabled = true`. Terraform creates its Entra ID app registration and client secret itself (rotated every 180 days), so no credentials have to be provided; the bootstrap must have granted the GitHub Actions identity the required Graph permission first.
 
 Additional API permissions can be defined per app through `auth0_permissions`, a map from permission name to an object with an optional `description`. They are created on the app's API but not assigned to any role.
 
