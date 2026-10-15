@@ -46,3 +46,8 @@ variable "zone_id" {
   default     = null
 }
 
+variable "auth0_connection_ids" {
+  description = "Auth0 connections to enable for this app's SPA and docs clients, as a map from an arbitrary key (e.g. the provider name) to the connection ID. Only used when auth is enabled."
+  type        = map(string)
+  default     = {}
+}

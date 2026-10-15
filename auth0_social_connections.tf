@@ -26,11 +26,6 @@ locals {
     for name, provider in local.auth0_social_providers : name => provider
     if local.fullstack_auth_enabled && try(length(trimspace(local.auth0_social_client_ids[name])) > 0, false)
   }
-
-  # SPA and docs clients of every fullstack app with auth enabled
-  auth0_social_enabled_clients = compact(flatten([
-    for app in module.fullstack : [app.auth0_client_id, app.auth0_docs_client_id]
-  ]))
 }
 
 resource "auth0_connection" "social" {
@@ -45,11 +40,4 @@ resource "auth0_connection" "social" {
     scopes                   = each.value.scopes
     set_user_root_attributes = "on_each_login"
   }
-}
-
-resource "auth0_connection_clients" "social" {
-  for_each = local.auth0_social_connections
-
-  connection_id   = auth0_connection.social[each.key].id
-  enabled_clients = local.auth0_social_enabled_clients
 }
