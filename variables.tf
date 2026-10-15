@@ -136,26 +136,51 @@ variable "android_apps" {
   default = {}
 }
 
-variable "bootstrap_key_vault_name" {
-  description = "Name of the bootstrap Key Vault holding optional Auth0 social login credentials. Passed from the GitHub secret AZURE_KEY_VAULT_NAME; empty disables the lookup."
+variable "auth0_google_client_id" {
+  description = "Google OAuth client ID for the Auth0 Google connection. The pipeline sets it from the bootstrap Key Vault secret auth0-google-client-id when that secret exists."
   type        = string
   default     = null
 }
 
-variable "bootstrap_key_vault_resource_group_name" {
-  description = "Resource group of the bootstrap Key Vault. Passed from the GitHub secret AZURE_BACKEND_RG."
+variable "auth0_google_client_secret" {
+  description = "Google OAuth client secret for the Auth0 Google connection. The pipeline sets it from the bootstrap Key Vault secret auth0-google-client-secret when that secret exists."
   type        = string
   default     = null
+  sensitive   = true
+
+  validation {
+    condition     = (var.auth0_google_client_id == null) == (var.auth0_google_client_secret == null)
+    error_message = "Set both auth0_google_client_id and auth0_google_client_secret, or neither."
+  }
+}
+
+variable "auth0_github_client_id" {
+  description = "GitHub OAuth client ID for the Auth0 GitHub connection. The pipeline sets it from the bootstrap Key Vault secret auth0-github-client-id when that secret exists."
+  type        = string
+  default     = null
+}
+
+variable "auth0_github_client_secret" {
+  description = "GitHub OAuth client secret for the Auth0 GitHub connection. The pipeline sets it from the bootstrap Key Vault secret auth0-github-client-secret when that secret exists."
+  type        = string
+  default     = null
+  sensitive   = true
+
+  validation {
+    condition     = (var.auth0_github_client_id == null) == (var.auth0_github_client_secret == null)
+    error_message = "Set both auth0_github_client_id and auth0_github_client_secret, or neither."
+  }
 }
 
 variable "auth0_social_connections" {
   description = <<DESCRIPTION
-Auth0 social login providers to activate. Google and GitHub are only configured if their client id and secret
-(`auth0-<provider>-client-id` and `auth0-<provider>-client-secret`) exist in the bootstrap Key Vault.
+Auth0 social login providers to activate. Google and GitHub are only configured if their client id and secret are set
+(`auth0_<provider>_client_id` and `auth0_<provider>_client_secret`, loaded by the pipeline from the bootstrap Key Vault).
+Without them, Google falls back to Auth0 developer keys and GitHub is skipped.
 
 - `google` - (Optional) Activate the Google connection. Defaults to false.
 - `github` - (Optional) Activate the GitHub connection. Defaults to false.
-- `microsoft` - (Optional) Activate the Microsoft connection. Its Entra ID app registration and client secret are created by Terraform, so no Key Vault secrets are needed. Defaults to false.
+- `microsoft` - (Optional) Activate the Microsoft connection. Its Entra ID app registration and client secret are created by Terraform, so no credentials are needed. Defaults to false.
 DESCRIPTION
   type = object({
     google    = optional(bool, false)

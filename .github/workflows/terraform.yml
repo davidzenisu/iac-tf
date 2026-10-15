@@ -31,9 +31,6 @@ env:
   AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
   AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-  # Bootstrap Key Vault holding optional Auth0 social login credentials
-  TF_VAR_bootstrap_key_vault_name: ${{ secrets.AZURE_KEY_VAULT_NAME }}
-  TF_VAR_bootstrap_key_vault_resource_group_name: ${{ secrets.AZURE_BACKEND_RG }}
 
 jobs:
   terraform-plan:
@@ -59,6 +56,52 @@ jobs:
         # Required for google play api
         access_token_scopes: https://www.googleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/cloud-platform
         token_format: access_token
+
+    - name: 'Authenticate to Azure'
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    # Loads optional secrets from the bootstrap Key Vault as Terraform variables. Secrets that
+    # don't exist leave their variable unset. The apply job reuses the saved plan, so only the
+    # plan job needs them.
+    - name: Load Optional Key Vault Secrets
+      env:
+        KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
+      run: |
+        if [ -z "$KEY_VAULT_NAME" ]; then
+          echo "::notice::AZURE_KEY_VAULT_NAME isn't set, so no optional Key Vault secrets are loaded."
+          exit 0
+        fi
+
+        declare -A variables=(
+          [auth0-google-client-id]=TF_VAR_auth0_google_client_id
+          [auth0-google-client-secret]=TF_VAR_auth0_google_client_secret
+          [auth0-github-client-id]=TF_VAR_auth0_github_client_id
+          [auth0-github-client-secret]=TF_VAR_auth0_github_client_secret
+        )
+
+        existing=$(az keyvault secret list --vault-name "$KEY_VAULT_NAME" --query "[?attributes.enabled].name" -o tsv)
+
+        for name in "${!variables[@]}"; do
+          variable="${variables[$name]}"
+          if ! grep -qxF "$name" <<< "$existing"; then
+            echo "Secret $name doesn't exist, $variable stays unset."
+            continue
+          fi
+
+          value=$(az keyvault secret show --vault-name "$KEY_VAULT_NAME" --name "$name" --query value -o tsv)
+          echo "::add-mask::$value"
+          delimiter="$(openssl rand -hex 8)"
+          {
+            echo "$variable<<$delimiter"
+            echo "$value"
+            echo "$delimiter"
+          } >> "$GITHUB_ENV"
+          echo "Loaded secret $name into $variable."
+        done
 
     # Install the latest version of the Terraform CLI
     - name: Setup Terraform

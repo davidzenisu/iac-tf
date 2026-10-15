@@ -101,5 +101,15 @@ if ! az storage blob upload \
   printf 'Failed to upload terraform.tfstate.bak. Ensure the current Azure identity has Storage Blob Data Contributor access to the state container.\n' >&2
   exit 1
 fi
+if ! az storage blob upload \
+  --account-name "$AZURE_STORAGE_ACCOUNT_NAME" \
+  --container-name "$AZURE_STORAGE_CONTAINER_NAME" \
+  --name "terraform.tfvars.bak" \
+  --file "$TFVARS_FILE" \
+  --auth-mode login \
+  --overwrite; then
+  printf 'Failed to upload terraform.tfvars.bak. Ensure the current Azure identity has Storage Blob Data Contributor access to the state container.\n' >&2
+  exit 1
+fi
 rm -f -- "$STATE_SNAPSHOT"
 STATE_SNAPSHOT=""
