@@ -15,24 +15,26 @@ locals {
     }
   }
 
-  # Missing GitHub secrets are passed as empty strings, so treat those as unset.
-  bootstrap_key_vault_configured = try(
-    length(var.bootstrap_key_vault_name) > 0 && length(var.bootstrap_key_vault_resource_group_name) > 0,
-    false
-  )
+  # Set by the pipeline from the bootstrap Key Vault; kept apart from the provider settings so the
+  # sensitive secrets never decide which connections exist
+  auth0_social_client_ids = {
+    google = var.auth0_google_client_id
+    github = var.auth0_github_client_id
+  }
+  auth0_social_client_secrets = {
+    google = var.auth0_google_client_secret
+    github = var.auth0_github_client_secret
+  }
 
   auth0_social_providers_activated = {
     for name, provider in local.auth0_social_providers : name => provider
     if local.fullstack_auth_enabled && var.auth0_social_connections[name]
   }
 
-  bootstrap_key_vault_secret_names = try(data.azurerm_key_vault_secrets.bootstrap[0].names, [])
-
-  # Activated providers whose credentials exist in the bootstrap Key Vault
+  # Activated providers with own credentials
   auth0_social_connections_with_credentials = {
     for name, provider in local.auth0_social_providers_activated : name => provider
-    if contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-id") &&
-    contains(local.bootstrap_key_vault_secret_names, "auth0-${name}-client-secret")
+    if try(length(trimspace(local.auth0_social_client_ids[name])) > 0, false)
   }
 
   # Activated providers without credentials that fall back to Auth0 developer keys
@@ -52,33 +54,6 @@ locals {
   ]))
 }
 
-data "azurerm_key_vault" "bootstrap" {
-  count = local.bootstrap_key_vault_configured && length(local.auth0_social_providers_activated) > 0 ? 1 : 0
-
-  name                = var.bootstrap_key_vault_name
-  resource_group_name = var.bootstrap_key_vault_resource_group_name
-}
-
-data "azurerm_key_vault_secrets" "bootstrap" {
-  count = length(data.azurerm_key_vault.bootstrap)
-
-  key_vault_id = data.azurerm_key_vault.bootstrap[0].id
-}
-
-data "azurerm_key_vault_secret" "auth0_social_client_id" {
-  for_each = local.auth0_social_connections_with_credentials
-
-  name         = "auth0-${each.key}-client-id"
-  key_vault_id = data.azurerm_key_vault.bootstrap[0].id
-}
-
-data "azurerm_key_vault_secret" "auth0_social_client_secret" {
-  for_each = local.auth0_social_connections_with_credentials
-
-  name         = "auth0-${each.key}-client-secret"
-  key_vault_id = data.azurerm_key_vault.bootstrap[0].id
-}
-
 resource "auth0_connection" "social" {
   for_each = local.auth0_social_connections
 
@@ -87,8 +62,8 @@ resource "auth0_connection" "social" {
 
   options {
     # Empty credentials make Auth0 use its developer keys
-    client_id                = try(data.azurerm_key_vault_secret.auth0_social_client_id[each.key].value, "")
-    client_secret            = try(data.azurerm_key_vault_secret.auth0_social_client_secret[each.key].value, "")
+    client_id                = contains(keys(local.auth0_social_connections_with_credentials), each.key) ? local.auth0_social_client_ids[each.key] : ""
+    client_secret            = contains(keys(local.auth0_social_connections_with_credentials), each.key) ? local.auth0_social_client_secrets[each.key] : ""
     scopes                   = each.value.scopes
     strategy_version         = each.value.strategy_version
     set_user_root_attributes = "on_each_login"
@@ -107,7 +82,7 @@ check "auth0_social_connection_secrets" {
     condition = alltrue([
       for name in keys(local.auth0_social_providers_activated) : contains(keys(local.auth0_social_connections), name)
     ])
-    error_message = "Some activated Auth0 social connections were skipped because the bootstrap Key Vault isn't configured or lacks their auth0-<provider>-client-id/-client-secret secrets."
+    error_message = "Some activated Auth0 social connections were skipped because their auth0-<provider>-client-id/-client-secret secrets don't exist in the bootstrap Key Vault."
   }
 
   assert {
