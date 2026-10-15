@@ -56,6 +56,21 @@ Fullstack projects are configured through `fullstack_apps`. The root creates one
 
 Google and GitHub social logins are deployed when their credentials are available. Before planning, the workflow loads the `auth0-<provider>-client-id` and `auth0-<provider>-client-secret` secrets from the bootstrap Key Vault (see [`.bootstrap/README.md`](./.bootstrap/README.md)) into the `auth0_<provider>_client_id`/`_client_secret` variables; secrets that don't exist leave their variables unset. A provider whose client id and secret are set is configured as an Auth0 connection; each fullstack app with `auth = true` receives the connection IDs through `auth0_connection_ids` and enables them for its own SPA and docs clients; providers without credentials are not deployed.
 
+New Auth0 tenants come with a `google-oauth2` connection that uses Auth0's developer keys. Because connection names are unique, Terraform can't create its own Google connection while that one exists. Instead of deleting it (which would also delete every user who signed in with it), set its ID in `production.tfvars` so Terraform imports it on the next apply:
+
+```hcl
+auth0_google_connection_id = "con_XXXXXXXXXXXXXXXX"
+```
+
+The import only runs while the Google client id and secret are set, so the connection is part of the configuration. Once imported, the setting has no further effect and can stay or be removed. Terraform then manages the connection's credentials and scopes; apps enabled on it outside Terraform stay enabled. From then on, removing the Google credentials would make Terraform delete the connection, and with it every user who signed in with Google.
+
+To find the connection ID in the [Auth0 Dashboard](https://manage.auth0.com/):
+
+1. Go to **Authentication → Social** and open the **google-oauth2** connection.
+2. Copy the ID from the browser's address bar. The URL ends in `/connections/social/con_XXXXXXXXXXXXXXXX/settings`; the `con_…` part is the connection ID.
+
+Alternatively, with the Auth0 CLI (installed in the dev container): `auth0 api get "connections?strategy=google-oauth2&fields=id,name"`.
+
 Additional API permissions can be defined per app through `auth0_permissions`, a map from permission name to an object with an optional `description`. They are created on the app's API but not assigned to any role.
 
 For example:

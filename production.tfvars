@@ -79,3 +79,5 @@ fullstack_apps = {
     }
   }
 }
+
+auth0_google_connection_id = "con_WeZqT0YKtzkZ8MOq"

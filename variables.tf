@@ -171,3 +171,14 @@ variable "auth0_github_client_secret" {
     error_message = "Set both auth0_github_client_id and auth0_github_client_secret, or neither."
   }
 }
+
+variable "auth0_google_connection_id" {
+  description = "ID (con_...) of the google-oauth2 connection that comes with new Auth0 tenants. When set, Terraform imports it as the Google social connection instead of creating a new one. Only takes effect while the Google client id and secret are set."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.auth0_google_connection_id == null || can(regex("^con_[A-Za-z0-9]+$", var.auth0_google_connection_id))
+    error_message = "auth0_google_connection_id must be an Auth0 connection ID like con_XXXXXXXXXXXXXXXX."
+  }
+}
