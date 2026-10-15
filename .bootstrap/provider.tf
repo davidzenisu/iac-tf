@@ -3,6 +3,10 @@ provider "azurerm" {
   use_cli = true
 }
 
+provider "azuread" {
+  use_cli = true
+}
+
 provider "google" {
   project = var.gcp_project_id
 }

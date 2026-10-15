@@ -171,3 +171,9 @@ variable "auth0_github_client_secret" {
     error_message = "Set both auth0_github_client_id and auth0_github_client_secret, or neither."
   }
 }
+
+variable "auth0_microsoft_connection_enabled" {
+  description = "Deploy the Auth0 Microsoft social connection. Terraform creates its Entra ID app registration and client secret, which requires the Graph permission granted by the bootstrap."
+  type        = bool
+  default     = false
+}

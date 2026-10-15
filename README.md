@@ -56,6 +56,8 @@ Fullstack projects are configured through `fullstack_apps`. The root creates one
 
 Google and GitHub social logins are deployed when their credentials are available. Before planning, the workflow loads the `auth0-<provider>-client-id` and `auth0-<provider>-client-secret` secrets from the bootstrap Key Vault (see [`.bootstrap/README.md`](./.bootstrap/README.md)) into the `auth0_<provider>_client_id`/`_client_secret` variables; secrets that don't exist leave their variables unset. A provider whose client id and secret are set is configured as an Auth0 connection; each fullstack app with `auth = true` receives the connection IDs through `auth0_connection_ids` and enables them for its own SPA and docs clients; providers without credentials are not deployed.
 
+The Microsoft social login is deployed when `auth0_microsoft_connection_enabled = true`. Terraform creates its Entra ID app registration and client secret itself (rotated every 180 days), so no credentials have to be provided; the bootstrap must have granted the GitHub Actions identity the required Graph permission first.
+
 Additional API permissions can be defined per app through `auth0_permissions`, a map from permission name to an object with an optional `description`. They are created on the app's API but not assigned to any role.
 
 For example:
