@@ -97,3 +97,30 @@ resource "auth0_role_permission" "user_read_api" {
   resource_server_identifier = auth0_resource_server.this[0].identifier
   permission                 = auth0_resource_server_scope.read_api[0].scope
 }
+
+locals {
+  # Keyed "<connection>-spa" / "<connection>-docs"; the docs client only exists with a backend
+  auth0_connection_client_assignments = merge(
+    {
+      for name, connection_id in var.auth0_connection_ids : "${name}-spa" => {
+        connection_id = connection_id
+        client        = "spa"
+      } if var.fullstack_app.auth
+    },
+    {
+      for name, connection_id in var.auth0_connection_ids : "${name}-docs" => {
+        connection_id = connection_id
+        client        = "docs"
+      } if var.fullstack_app.auth && var.fullstack_app.backend
+    },
+  )
+}
+
+# Adds this app's clients to shared connections without owning their full client list, so every
+# fullstack app can manage its own entries
+resource "auth0_connection_client" "this" {
+  for_each = local.auth0_connection_client_assignments
+
+  connection_id = each.value.connection_id
+  client_id     = each.value.client == "spa" ? auth0_client.this[0].id : auth0_client.docs[0].id
+}

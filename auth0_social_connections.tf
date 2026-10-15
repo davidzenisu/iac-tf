@@ -42,11 +42,6 @@ locals {
       } : name => provider if local.auth0_microsoft_connection_enabled
     },
   )
-
-  # SPA and docs clients of every fullstack app with auth enabled
-  auth0_social_enabled_clients = compact(flatten([
-    for app in module.fullstack : [app.auth0_client_id, app.auth0_docs_client_id]
-  ]))
 }
 
 resource "auth0_connection" "social" {
@@ -70,11 +65,4 @@ resource "auth0_connection" "social" {
     strategy_version         = each.value.strategy_version
     set_user_root_attributes = "on_each_login"
   }
-}
-
-resource "auth0_connection_clients" "social" {
-  for_each = local.auth0_social_connections
-
-  connection_id   = auth0_connection.social[each.key].id
-  enabled_clients = local.auth0_social_enabled_clients
 }
