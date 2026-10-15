@@ -135,3 +135,39 @@ variable "android_apps" {
   }))
   default = {}
 }
+
+variable "auth0_google_client_id" {
+  description = "Google OAuth client ID for the Auth0 Google connection. The pipeline sets it from the bootstrap Key Vault secret auth0-google-client-id when that secret exists."
+  type        = string
+  default     = null
+}
+
+variable "auth0_google_client_secret" {
+  description = "Google OAuth client secret for the Auth0 Google connection. The pipeline sets it from the bootstrap Key Vault secret auth0-google-client-secret when that secret exists."
+  type        = string
+  default     = null
+  sensitive   = true
+
+  validation {
+    condition     = (var.auth0_google_client_id == null) == (var.auth0_google_client_secret == null)
+    error_message = "Set both auth0_google_client_id and auth0_google_client_secret, or neither."
+  }
+}
+
+variable "auth0_github_client_id" {
+  description = "GitHub OAuth client ID for the Auth0 GitHub connection. The pipeline sets it from the bootstrap Key Vault secret auth0-github-client-id when that secret exists."
+  type        = string
+  default     = null
+}
+
+variable "auth0_github_client_secret" {
+  description = "GitHub OAuth client secret for the Auth0 GitHub connection. The pipeline sets it from the bootstrap Key Vault secret auth0-github-client-secret when that secret exists."
+  type        = string
+  default     = null
+  sensitive   = true
+
+  validation {
+    condition     = (var.auth0_github_client_id == null) == (var.auth0_github_client_secret == null)
+    error_message = "Set both auth0_github_client_id and auth0_github_client_secret, or neither."
+  }
+}

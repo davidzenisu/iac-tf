@@ -5,6 +5,7 @@ locals {
     AZURE_CLIENT_ID        = azurerm_user_assigned_identity.github_actions.client_id
     AZURE_BACKEND_RG       = var.azure_backend_resource_group
     AZURE_BACKEND_ST       = var.azure_backend_storage_account
+    AZURE_KEY_VAULT_NAME   = azurerm_key_vault.bootstrap.name
     CLOUDFLARE_API_TOKEN   = var.cloudflare_api_token
     GCP_WORKLOAD_PROVIDER  = google_iam_workload_identity_pool_provider.github.name
     GCP_PROJECT_ID         = var.gcp_project_id

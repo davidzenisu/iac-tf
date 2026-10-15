@@ -8,6 +8,8 @@ module "fullstack" {
   zone_name          = var.zone_name
   zone_id            = try(data.cloudflare_zone.this["default"].id, null)
 
+  auth0_connection_ids = { for name, connection in auth0_connection.social : name => connection.id }
+
   providers = {
     auth0      = auth0
     azurerm    = azurerm
