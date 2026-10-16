@@ -67,10 +67,9 @@ android_apps = {
 
 # Placeholder branding values; replace them before merging
 auth0_branding = {
-  friendly_name         = "Zeni-Su"
-  picture_url           = "https://zeni-su.com/logo-150.png"
-  logo_url              = "https://zeni-su.com/logo.png"
-  favicon_url           = "https://zeni-su.com/favicon.ico"
+  friendly_name         = "Ovid Games"
+  logo_url              = "https://david.zeni-su.com/images/avatar.png"
+  favicon_url           = "https://david.zeni-su.com/images/avatar.png"
   primary_color         = "#635BFF"
   page_background_color = "#F5F5F5"
 }
