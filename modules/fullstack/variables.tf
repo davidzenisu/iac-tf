@@ -12,6 +12,7 @@ variable "fullstack_app" {
     storage                  = optional(bool, true)
     database                 = optional(bool, true)
     auth                     = optional(bool, true)
+    display_name             = optional(string)
     auth0_permissions        = optional(map(object({ description = optional(string) })), {})
     supabase_organization_id = optional(string)
     supabase_region          = optional(string, "eu-west-1")

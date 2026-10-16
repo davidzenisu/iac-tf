@@ -71,6 +71,17 @@ To find the connection ID in the [Auth0 Dashboard](https://manage.auth0.com/):
 
 Alternatively, with the Auth0 CLI (installed in the dev container): `auth0 api get "connections?strategy=google-oauth2&fields=id,name"`.
 
+The Auth0 login page shows each app's `display_name` ("continue to <display_name>"); without it, the client name `spa-<project_name>` is shown. Tenant-wide branding of the login pages (tenant name, logo, favicon, and button and background colors) is set through `auth0_branding`; unset attributes keep the tenant's current values:
+
+```hcl
+auth0_branding = {
+  friendly_name         = "Example"
+  logo_url              = "https://example.com/logo.png"
+  primary_color         = "#635BFF"
+  page_background_color = "#F5F5F5"
+}
+```
+
 Additional API permissions can be defined per app through `auth0_permissions`, a map from permission name to an object with an optional `description`. They are created on the app's API but not assigned to any role.
 
 For example:
