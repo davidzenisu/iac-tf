@@ -3,7 +3,8 @@ data "auth0_tenant" "this" {}
 resource "auth0_client" "this" {
   count = var.fullstack_app.auth ? 1 : 0
 
-  name     = "spa-${var.fullstack_app.project_name}"
+  # Shown on the Auth0 login page ("continue to <name>")
+  name     = coalesce(var.fullstack_app.display_name, "spa-${var.fullstack_app.project_name}")
   app_type = "spa"
 
   callbacks = [
@@ -40,7 +41,7 @@ resource "auth0_client" "this" {
 resource "auth0_client" "docs" {
   count = var.fullstack_app.auth && var.fullstack_app.backend ? 1 : 0
 
-  name        = "docs-${var.fullstack_app.project_name}"
+  name        = var.fullstack_app.display_name != null ? "${var.fullstack_app.display_name} API docs" : "docs-${var.fullstack_app.project_name}"
   app_type    = "spa"
   grant_types = ["authorization_code"]
 

@@ -60,6 +60,7 @@ variable "fullstack_apps" {
     storage                  = optional(bool, true)
     database                 = optional(bool, true)
     auth                     = optional(bool, true)
+    display_name             = optional(string)
     auth0_permissions        = optional(map(object({ description = optional(string) })), {})
     supabase_organization_id = optional(string)
     supabase_region          = optional(string, "eu-west-1")
@@ -180,5 +181,45 @@ variable "auth0_google_connection_id" {
   validation {
     condition     = var.auth0_google_connection_id == null || can(regex("^con_[A-Za-z0-9]+$", var.auth0_google_connection_id))
     error_message = "auth0_google_connection_id must be an Auth0 connection ID like con_XXXXXXXXXXXXXXXX."
+  }
+}
+
+variable "auth0_branding" {
+  description = <<DESCRIPTION
+Tenant-wide branding of the Auth0 login pages. Every attribute is optional; unset attributes keep the tenant's current value.
+
+- `friendly_name` - (Optional) Tenant name shown on the login page ("Log in to <name>").
+- `picture_url` - (Optional) Tenant logo, used where no branding logo is set. Recommended size 150x150 px.
+- `logo_url` - (Optional) Logo shown on the login pages.
+- `favicon_url` - (Optional) Favicon of the login pages.
+- `primary_color` - (Optional) Color of buttons and links, as a hex value like `#635BFF`.
+- `page_background_color` - (Optional) Background color of the login pages, as a hex value like `#F5F5F5`.
+
+URLs must be publicly reachable HTTPS addresses.
+DESCRIPTION
+  type = object({
+    friendly_name         = optional(string)
+    picture_url           = optional(string)
+    logo_url              = optional(string)
+    favicon_url           = optional(string)
+    primary_color         = optional(string)
+    page_background_color = optional(string)
+  })
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for url in [var.auth0_branding.picture_url, var.auth0_branding.logo_url, var.auth0_branding.favicon_url] :
+      url == null ? true : startswith(url, "https://")
+    ])
+    error_message = "auth0_branding URLs must start with https://."
+  }
+
+  validation {
+    condition = alltrue([
+      for color in [var.auth0_branding.primary_color, var.auth0_branding.page_background_color] :
+      color == null || can(regex("^#[0-9A-Fa-f]{6}$", color))
+    ])
+    error_message = "auth0_branding colors must be hex values like #635BFF."
   }
 }

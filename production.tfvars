@@ -65,6 +65,16 @@ android_apps = {
   }
 }
 
+# Placeholder branding values; replace them before merging
+auth0_branding = {
+  friendly_name         = "Zeni-Su"
+  picture_url           = "https://zeni-su.com/logo-150.png"
+  logo_url              = "https://zeni-su.com/logo.png"
+  favicon_url           = "https://zeni-su.com/favicon.ico"
+  primary_color         = "#635BFF"
+  page_background_color = "#F5F5F5"
+}
+
 fullstack_apps = {
   "drawing-duel" = {
     project_name             = "drawing-duel"
@@ -73,6 +83,7 @@ fullstack_apps = {
     function_runtime_name    = "python"
     function_runtime_version = "3.14"
     custom_domain            = "drawing"
+    display_name             = "Drawing Duel"
     supabase_organization_id = "htvllqfeppqjdwgdbkuj" #Slug only
     auth0_permissions = {
       "edit:content" = { description = "Access the prompt and title pregenerated contents" }
