@@ -85,7 +85,8 @@ fullstack_apps = {
     display_name             = "Drawing Duel"
     supabase_organization_id = "htvllqfeppqjdwgdbkuj" #Slug only
     auth0_permissions = {
-      "edit:content" = { description = "Access the prompt and title pregenerated contents" }
+      "edit:content"   = { description = "Access the prompt and title pregenerated contents" }
+      "manage:servers" = { description = "Manage servers" }
     }
   }
 }
