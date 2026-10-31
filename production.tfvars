@@ -86,7 +86,7 @@ fullstack_apps = {
     supabase_organization_id = "htvllqfeppqjdwgdbkuj" #Slug only
     auth0_permissions = {
       "edit:content"   = { description = "Access the prompt and title pregenerated contents" }
-      "manage:servers" = {}
+      "manage:servers" = { description = "Manage servers" }
     }
   }
 }
