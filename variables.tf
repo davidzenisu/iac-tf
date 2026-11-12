@@ -191,7 +191,7 @@ Tenant-wide branding of the Auth0 login pages. Every attribute is optional; unse
 - `friendly_name` - (Optional) Tenant name shown on the login page ("Log in to <name>").
 - `picture_url` - (Optional) Tenant logo, used where no branding logo is set. Recommended size 150x150 px.
 - `logo_url` - (Optional) Logo shown on the login pages.
-- `favicon_url` - (Optional) Favicon of the login pages.
+- `favicon_url` - (Optional) Favicon of the login pages. Not applied any more: the login theme has no favicon (see README).
 - `primary_color` - (Optional) Color of buttons and links, as a hex value like `#635BFF`.
 - `page_background_color` - (Optional) Background color of the login pages, as a hex value like `#F5F5F5`.
 

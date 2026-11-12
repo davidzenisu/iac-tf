@@ -73,7 +73,7 @@ To find the connection ID in the [Auth0 Dashboard](https://manage.auth0.com/):
 
 Alternatively, with the Auth0 CLI (installed in the dev container): `auth0 api get "connections?strategy=google-oauth2&fields=id,name"`.
 
-The Auth0 login page shows each app's `display_name` ("continue to <display_name>"); without it, the client name `spa-<project_name>` is shown. Tenant-wide branding of the login pages (tenant name, logo, favicon, and button and background colors) is set through `auth0_branding`; unset attributes keep the tenant's current values:
+The Auth0 login page shows each app's `display_name` ("continue to <display_name>"); without it, the client name `spa-<project_name>` is shown. Tenant-wide branding of the login pages (tenant name, logo, and button and background colors) is set through `auth0_branding`: the tenant name on the tenant, the logo and colors as a Universal Login theme (`auth0_branding_theme`), whose other settings keep Auth0's defaults. The theme replaces the `auth0_branding` resource, which also reads the custom page template: with a custom domain, the free plan answers that with "402 Payment Required" and every plan fails. The favicon (`favicon_url`) is no longer applied; the one set before stays in Auth0:
 
 ```hcl
 auth0_branding = {
