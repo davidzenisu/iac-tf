@@ -5,6 +5,7 @@ module "fullstack" {
 
   fullstack_app      = each.value
   auth0_user_role_id = each.value.auth ? auth0_role.user[0].id : null
+  auth0_domain       = each.value.auth ? local.auth0_login_domain : null
   zone_name          = var.zone_name
   zone_id            = try(data.cloudflare_zone.this["default"].id, null)
 

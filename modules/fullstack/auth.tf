@@ -1,5 +1,3 @@
-data "auth0_tenant" "this" {}
-
 resource "auth0_client" "this" {
   count = var.fullstack_app.auth ? 1 : 0
 

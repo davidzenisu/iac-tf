@@ -91,8 +91,8 @@ resource "azurerm_function_app_flex_consumption" "this" {
       FRONTEND_URL = "https://${var.fullstack_app.custom_domain}.${var.zone_name}"
     } : {},
     var.fullstack_app.auth ? {
-      AUTH0_DOMAIN         = data.auth0_tenant.this.domain
-      AUTH0_ISSUER         = "https://${data.auth0_tenant.this.domain}/"
+      AUTH0_DOMAIN         = var.auth0_domain
+      AUTH0_ISSUER         = "https://${var.auth0_domain}/"
       AUTH0_AUDIENCE       = local.api_audience
       AUTH0_REQUIRED_SCOPE = "read:api"
       AUTH0_DOCS_CLIENT_ID = auth0_client.docs[0].client_id
