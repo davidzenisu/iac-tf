@@ -92,6 +92,3 @@ fullstack_apps = {
 }
 
 auth0_google_connection_id = "con_WeZqT0YKtzkZ8MOq"
-
-# Sign in through auth.zeni-su.com: first-party cookies for drawing.zeni-su.com
-auth0_custom_domain = "auth"
