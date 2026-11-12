@@ -223,3 +223,19 @@ DESCRIPTION
     error_message = "auth0_branding colors must be hex values like #635BFF."
   }
 }
+
+variable "auth0_custom_domain" {
+  type    = string
+  default = null
+
+  description = <<DESCRIPTION
+Subdomain of `zone_name` the fullstack apps sign in through, e.g. `auth` for `auth.<zone_name>`. Creates an Auth0 custom domain with Auth0-managed certificates and its CNAME in Cloudflare; once Auth0 verified it, the apps' `auth0-domain` Key Vault secret and the backends' `AUTH0_DOMAIN`/`AUTH0_ISSUER` switch to it. Null keeps the tenant domain.
+
+Auth0 only allows custom domains on tenants with a credit card on file (also on the free plan).
+DESCRIPTION
+
+  validation {
+    condition     = var.auth0_custom_domain == null || var.zone_name != null
+    error_message = "auth0_custom_domain needs zone_name."
+  }
+}

@@ -52,3 +52,14 @@ variable "auth0_connection_ids" {
   type        = map(string)
   default     = {}
 }
+
+variable "auth0_domain" {
+  description = "Domain the app signs in through and its tokens are issued by: the Auth0 custom domain, or the tenant domain without one."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = !var.fullstack_app.auth || var.auth0_domain != null
+    error_message = "auth0_domain must be provided when auth is enabled."
+  }
+}

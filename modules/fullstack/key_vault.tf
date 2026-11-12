@@ -139,7 +139,7 @@ resource "azurerm_key_vault_secret" "auth0_domain" {
   count = var.fullstack_app.auth ? 1 : 0
 
   name         = "auth0-domain"
-  value        = data.auth0_tenant.this.domain
+  value        = var.auth0_domain
   key_vault_id = azurerm_key_vault.this.id
 
   depends_on = [time_sleep.key_vault_rbac_propagation]
