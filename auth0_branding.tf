@@ -24,18 +24,14 @@ resource "auth0_tenant" "this" {
   picture_url   = var.auth0_branding.picture_url
 }
 
-resource "auth0_branding" "this" {
-  count = local.auth0_login_branding_configured ? 1 : 0
+# Temporarily not managed: with the Auth0 custom domain in place (#65), Auth0 answers the branding
+# API with "402 Payment Required" on the free plan, which fails every plan. Forgetting it (the
+# branding itself stays in Auth0) lets the custom domain be removed; bring the resource back
+# afterwards to manage the branding again.
+removed {
+  from = auth0_branding.this
 
-  logo_url    = var.auth0_branding.logo_url
-  favicon_url = var.auth0_branding.favicon_url
-
-  dynamic "colors" {
-    for_each = local.auth0_login_colors_configured ? [1] : []
-
-    content {
-      primary         = var.auth0_branding.primary_color
-      page_background = var.auth0_branding.page_background_color
-    }
+  lifecycle {
+    destroy = false
   }
 }
