@@ -231,7 +231,7 @@ variable "auth0_custom_domain" {
   description = <<DESCRIPTION
 Subdomain of `zone_name` the fullstack apps sign in through, e.g. `auth` for `auth.<zone_name>`. Creates an Auth0 custom domain with Auth0-managed certificates and its CNAME in Cloudflare; once Auth0 verified it, the apps' `auth0-domain` Key Vault secret and the backends' `AUTH0_DOMAIN`/`AUTH0_ISSUER` switch to it. Null keeps the tenant domain.
 
-Auth0 only allows custom domains on tenants with a credit card on file (also on the free plan).
+Auth0 only allows custom domains on tenants with a credit card on file (as of November 2026), also on the free plan, where nothing is charged. Add one under Settings → Billing in the Auth0 Dashboard before applying, or creating the domain fails.
 DESCRIPTION
 
   validation {
